@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+    This plugin pulls information from an artifact repository and makes it available as build parameters.
+</div>

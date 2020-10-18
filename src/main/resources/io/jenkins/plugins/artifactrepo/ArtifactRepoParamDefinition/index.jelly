@@ -1,0 +1,24 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:st="jelly:stapler">
+
+    <j:set var="escapeEntryTitleAndDescription" value="false"/>
+
+    <f:entry title="${it.name}" description="${it.description}">
+        <div name="parameter">
+            <input type="hidden" name="name" value="${it.name}"/>
+
+            <st:include page="index-${it.displayStyle}.jelly"/>
+
+            <j:set var="textAreaCss"
+                   value="${it.hideTextarea ? 'display:none' :
+                         'color: #b0b0b0; border: 1px solid #bebebe;'}"/>
+
+            <textarea name="value" rows="3" readonly="readonly" class="setting-input"
+                      style="${textAreaCss}"/>
+        </div>
+    </f:entry>
+
+    <script src="${rootURL}/plugin/artifact-repository-parameter/js/index.js"
+            type="text/javascript"/>
+
+</j:jelly>

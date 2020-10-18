@@ -1,0 +1,15 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core">
+
+  <fieldset style="border: 0; padding: 0;">
+    <j:forEach var="item" items="${it.result}">
+      <label>
+        <input name="entry" type="radio" value="${item.value}" key="${item.key}"
+          onclick="setValues(this)"/>
+        ${item.value}
+      </label>
+      <br/>
+    </j:forEach>
+  </fieldset>
+
+</j:jelly>

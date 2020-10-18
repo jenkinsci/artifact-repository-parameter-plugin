@@ -1,0 +1,11 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core">
+
+    <select class="setting-input" onchange="setValues(this)">
+        <option value="">Please select ...</option>
+        <j:forEach var="item" items="${it.result}">
+            <option value="${item.value}" key="${item.key}">${item.value}</option>
+        </j:forEach>
+    </select>
+
+</j:jelly>

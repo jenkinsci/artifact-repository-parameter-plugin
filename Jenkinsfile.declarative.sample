@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+        disableConcurrentBuilds()
+        timeout(time: 10, unit: 'SECONDS')
+    }
+
+    parameters {
+        string(name: 'Repositories', defaultValue: '')
+    }
+
+    stages {
+        stage('Setup') {
+            steps {
+                script {
+                    properties([
+                        parameters([
+                            [
+                                $class: 'ArtifactRepoParamDefinition',
+                                name: 'Repositories',                                 // must match with the param name in the parameters section below
+                                description: 'List all repositories on the server',
+                                serverType: 'artifactory',                            // artifactory | nexus
+                                serverUrl: 'http://localhost:8082/artifactory',
+                                credentialsId: 'artifactory',
+                                ignoreCertificate: false,
+                                proxy: null,
+                                paramType: 'repository',                              // possible values:       repository | artifact | version
+                                artifactName: null,                                   // only available with:   artifact | version
+                                repoName: null,                                       // only available with:   artifact | version
+                                versionRegex: null,                                   // only available with:   version
+                                repoType: [ 'true','true','false' ],                  // local | remote | virtual (group)
+                                formatType: [ 'true','true','true','true','false' ],  // Maven | NPM | pypi | Docker | Other
+                                displayStyle: 'checkbox',                             // possible values:       select | dropdown | checkbox | radio
+                                resultsCount: '6',
+                                filterRegex: '.+',                                    // must be set, least restrictive = .+
+                                sortOrder: 'desc',                                    // possible values:       asc | desc
+                                hideTextarea: true                                    // possible values:       true | false
+                            ]
+                        ])
+                    ])
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo params.Repositories
+            }
+        }
+
+    }
+}

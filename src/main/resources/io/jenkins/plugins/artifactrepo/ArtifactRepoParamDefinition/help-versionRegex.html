@@ -1,0 +1,33 @@
+<div>
+    <p>
+        This field allows to define a
+        <a href="https://docs.oracle.com/javase/tutorial/essential/regex/groups.html">
+            Java capturing groups</a> to extract version information from the full artifact path. In a
+        nutshell define a regex and define a part of a string as a group by surrounding it with
+        ( ) brackets to define a group. The first outer group found is used to extract the version
+        information. Following is an example for a Maven artifact with the regex
+        <code style="background-color: #ccc">.+/(\d+\.\d+(\.\d+((-CANDIDATE)?-SNAPSHOT)?)?)/.+</code>.
+    </p>
+    <table border="1">
+        <tr>
+            <th>Path</th>
+            <th>Version</th>
+        </tr>
+        <tr>
+            <td>http://localhost:8081/maven-releases/org/example/test/<span style="background-color: #ccc">1.0</span>/test-1.0.jar
+            </td>
+            <td>1.0</td>
+        </tr>
+        <tr>
+            <td>http://localhost:8081/maven-releases/org/example/test/<span style="background-color: #ccc">1.0.5</span>/test-1.0.5.jar
+            </td>
+            <td>1.0.5</td>
+        </tr>
+        <tr>
+            <td>
+                http://localhost:8081/maven-releases/org/example/test/<span style="background-color: #ccc">1.0.5-CANDIDATE-SNAPSHOT</span>/test-1.0.5-CANDIDATE-SNAPSHOT.jar
+            </td>
+            <td>1.0.5-CANDIDATE-SNAPSHOT</td>
+        </tr>
+    </table>
+</div>
