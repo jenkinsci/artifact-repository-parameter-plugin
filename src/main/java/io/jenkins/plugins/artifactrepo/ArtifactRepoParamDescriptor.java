@@ -62,10 +62,10 @@ public class ArtifactRepoParamDescriptor extends ParameterDescriptor {
   }
 
   public FormValidation doCheckIgnoreCertificate(@QueryParameter String value) {
-    if (StringUtils.isBlank(value) || !"true".matches(value)) {
-      return FormValidation.ok();
+    if ("true".equalsIgnoreCase(value)) {
+      return FormValidation.warning(Messages.formError_invalidCertIgnored());
     }
-    return FormValidation.warning(Messages.formError_invalidCertIgnored());
+    return FormValidation.ok();
   }
 
   public FormValidation doCheckProxyPort(

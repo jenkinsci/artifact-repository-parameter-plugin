@@ -13,11 +13,11 @@
         <f:section title="${%connectionOptions}">
 
             <f:entry title="${%serverType}" field="serverType">
-                <f:radio name="serverType" value="nexus" title="${%serverTypeNexus}"
-                         checked="${instance.serverType eq 'nexus'}"/>
-                <br/>
                 <f:radio name="serverType" value="artifactory" title="${%serverTypeArtifactory}"
                          checked="${instance.serverType eq 'artifactory'}"/>
+                <br/>
+                <f:radio name="serverType" value="nexus" title="${%serverTypeNexus}"
+                         checked="${instance.serverType eq 'nexus'}"/>
             </f:entry>
 
             <f:entry title="${%serverUrl}" field="serverUrl">
@@ -244,6 +244,14 @@
 
             <f:entry title="${%hideTextarea}" field="hideTextarea">
                 <f:checkbox default="false"/>
+            </f:entry>
+
+            <f:entry title="${%selectEntry}" field="selectEntry">
+                <select name="selectEntry">
+                    <option value="none">${%selectNone}</option>
+                    <option value="first">${%selectFirst}</option>
+                    <option value="last">${%selectLast}</option>
+                </select>
             </f:entry>
 
         </f:section>

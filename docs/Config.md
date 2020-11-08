@@ -100,7 +100,7 @@ This section allows to customize the look of the parameters in the  `Build with 
 
 ![](img/display_options.png)
 
-The `Display Style` allows to customize how entries are displayed. Following is a screenshot of all 
+`Display Style` allows to customize how entries are displayed. Following is a screenshot of all 
 possible representations of the same plugin.
 
 ![](img/display_styles.png)
@@ -111,11 +111,14 @@ The `Filter Regex` is another possibility to filter the result list before displ
 to the end user. This option was implemented due to the fact that the filter options available in 
 the REST APIs of the artifact repositories are quite basic and do not allow for more complex 
 filters. Any entry to be displayed must match the regex. Hence a default value `.+` is used to
-display all entries out of the box. 
+display all entries out of the box. If the configuration field is left empty an implicit `.+` is used.
 
 `Sort Results` simply sorts the results alphabetically based on the selected order.
 
 `Hide Textarea` allows to hide the textarea displayed below the selection options.
+
+`Select Entry` allows to define whether or not an entry should get pre-selected when opening the
+`Build with Parameters` view. Currently the selection of the first and the last entry are supported.
 
 ## Build View
 

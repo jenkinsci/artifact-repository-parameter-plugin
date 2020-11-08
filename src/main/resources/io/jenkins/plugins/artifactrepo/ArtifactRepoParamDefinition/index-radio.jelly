@@ -1,15 +1,26 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core">
 
-  <fieldset style="border: 0; padding: 0;">
-    <j:forEach var="item" items="${it.result}">
-      <label>
-        <input name="entry" type="radio" value="${item.value}" key="${item.key}"
-          onclick="setValues(this)"/>
-        ${item.value}
-      </label>
-      <br/>
-    </j:forEach>
-  </fieldset>
+    <fieldset style="border: 0; padding: 0;">
+        <j:forEach items="${arpResult}" var="item" varStatus="loop">
+            <label>
+                <j:choose>
+                    <j:when test="${selectFirst == loop.first and selectLast == loop.last and !selectNone}">
+                        <input name="entry" type="radio" value="${item.value}" key="${item.key}"
+                               checked="checked"
+                               onclick="setValues(this)"/>
+                        <j:set var="textareaInitialValue" scope="parent"
+                               value="${item.value + ';' + item.key}"/>
+                    </j:when>
+                    <j:otherwise>
+                        <input name="entry" type="radio" value="${item.value}" key="${item.key}"
+                               onclick="setValues(this)"/>
+                    </j:otherwise>
+                </j:choose>
+                ${item.value}
+            </label>
+            <br/>
+        </j:forEach>
+    </fieldset>
 
 </j:jelly>

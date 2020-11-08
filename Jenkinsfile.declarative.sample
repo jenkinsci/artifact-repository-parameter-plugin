@@ -34,9 +34,10 @@ pipeline {
                                 formatType: [ 'true','true','true','true','false' ],  // Maven | NPM | pypi | Docker | Other
                                 displayStyle: 'checkbox',                             // possible values:       select | dropdown | checkbox | radio
                                 resultsCount: '6',
-                                filterRegex: '.+',                                    // must be set, least restrictive = .+
+                                filterRegex: '.+',                                    // must be set, least restrictive = '.+'
                                 sortOrder: 'desc',                                    // possible values:       asc | desc
-                                hideTextarea: true                                    // possible values:       true | false
+                                hideTextarea: true,                                   // possible values:       true | false
+                                selectEntry: 'none',                                  // possible values:       'none' | 'first' | 'last'
                             ]
                         ])
                     ])

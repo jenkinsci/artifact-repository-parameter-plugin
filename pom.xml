@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jenkins-ci.plugins</groupId>
+        <artifactId>plugin</artifactId>
+        <version>4.12</version>
+        <relativePath/>
+    </parent>
 
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>artifact-repository-parameter</artifactId>
@@ -11,13 +20,6 @@
         Display information from an artifact repository as Jenkins build parameters.
     </description>
     <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
-
-    <parent>
-        <groupId>org.jenkins-ci.plugins</groupId>
-        <artifactId>plugin</artifactId>
-        <version>4.6</version>
-        <relativePath />
-    </parent>
 
     <licenses>
         <license>
@@ -39,6 +41,7 @@
         <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <maven.version>3.6</maven.version>
+        <gitOrga>jenkinsci</gitOrga>
         <!-- Jenkins specific properties -->
         <jenkins.version>2.190.1</jenkins.version>
         <java.level>8</java.level>
@@ -81,7 +84,7 @@
                             </goals>
                             <configuration>
                                 <rules>
-                                    <banDuplicatePomDependencyVersions />
+                                    <banDuplicatePomDependencyVersions/>
                                     <requireJavaVersion>
                                         <version>${java.version}</version>
                                     </requireJavaVersion>
@@ -103,9 +106,9 @@
                                 <version>1.7</version>
                                 <style>GOOGLE</style>
                             </googleJavaFormat>
-                            <endWithNewline />
-                            <removeUnusedImports />
-                            <trimTrailingWhitespace />
+                            <endWithNewline/>
+                            <removeUnusedImports/>
+                            <trimTrailingWhitespace/>
                         </java>
                     </configuration>
                 </plugin>
@@ -250,11 +253,11 @@
     </pluginRepositories>
 
     <scm>
-        <connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
+        <connection>scm:git:git://github.com/${gitOrga}/${project.artifactId}-plugin.git</connection>
         <developerConnection>
-            scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git
+            scm:git:git@github.com:${gitOrga}/${project.artifactId}-plugin.git
         </developerConnection>
-        <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+        <url>https://github.com/${gitOrga}/${project.artifactId}-plugin</url>
         <tag>${scmTag}</tag>
     </scm>
 
