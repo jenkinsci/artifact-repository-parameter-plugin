@@ -48,10 +48,11 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
   private final FormatType formatType;
   // display options
   private final String displayStyle;
-  private final String resultsCount;
+  private final int resultsCount;
   private final String filterRegex;
   private final String sortOrder;
   private final boolean hideTextarea;
+  private final String selectEntry;
 
   /** Request data from the target instance to display as build parameter. */
   public Map<String, String> getResult() {
@@ -59,7 +60,7 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
         .filter(distinctByValue(Entry::getValue))
         .filter(entry -> entry.getValue().matches(filterRegex))
         .sorted(getComparator())
-        .limit(Integer.parseInt(resultsCount))
+        .limit(resultsCount)
         .collect(
             Collectors.toMap(
                 Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
@@ -82,7 +83,7 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
     return comparator;
   }
 
-  /** Constructor is used during connenction validation test. */
+  /** Constructor is used during connection validation test. */
   ArtifactRepoParamDefinition(
       String serverType,
       String serverUrl,
@@ -107,7 +108,8 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
         null,
         null,
         null,
-        false);
+        false,
+        "none");
   }
 
   @DataBoundConstructor
@@ -129,34 +131,40 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
       String resultsCount,
       String filterRegex,
       String sortOrder,
-      boolean hideTextarea) {
+      boolean hideTextarea,
+      String selectEntry) {
 
     super(name, description);
     uid = StringUtils.substringAfterLast(UUID.randomUUID().toString(), "-");
 
     // connection options
-    this.serverType = Optional.ofNullable(serverType).map(String::trim).orElse(null);
-    this.serverUrl = Optional.ofNullable(serverUrl).map(String::trim).orElse(null);
-    this.credentialsId = Optional.ofNullable(credentialsId).map(String::trim).orElse(null);
+    this.serverType = Optional.ofNullable(serverType).map(String::trim).orElse("");
+    this.serverUrl = Optional.ofNullable(serverUrl).map(String::trim).orElse("");
+    this.credentialsId = Optional.ofNullable(credentialsId).map(String::trim).orElse("");
     this.ignoreCertificate = ignoreCertificate;
     this.proxy = Optional.ofNullable(proxy).orElse(ArtifactRepoParamProxy.DISABLED);
     // api options
-    this.paramType = Optional.ofNullable(paramType).map(String::trim).orElse(null);
-    this.artifactName = Optional.ofNullable(artifactName).map(String::trim).orElse(null);
-    this.repoName = Optional.ofNullable(repoName).map(String::trim).orElse(null);
-    this.versionRegex = Optional.ofNullable(versionRegex).map(String::trim).orElse(null);
+    this.paramType = Optional.ofNullable(paramType).map(String::trim).orElse("");
+    this.artifactName = Optional.ofNullable(artifactName).map(String::trim).orElse("");
+    this.repoName = Optional.ofNullable(repoName).map(String::trim).orElse("");
+    this.versionRegex = Optional.ofNullable(versionRegex).map(String::trim).orElse("");
     this.repoType = new RepoType(repoType);
     this.formatType = new FormatType(formatType);
     // display options
-    this.displayStyle = Optional.ofNullable(displayStyle).map(String::trim).orElse(null);
+    this.displayStyle = Optional.ofNullable(displayStyle).map(String::trim).orElse("");
     this.resultsCount =
         Optional.ofNullable(resultsCount)
-            .filter(StringUtils::isNotBlank)
             .filter(s -> s.matches("\\d+"))
-            .orElse("10");
-    this.filterRegex = Optional.ofNullable(filterRegex).map(String::trim).orElse(null);
-    this.sortOrder = Optional.ofNullable(sortOrder).map(String::trim).orElse(null);
+            .map(Integer::valueOf)
+            .orElse(10);
+    this.filterRegex =
+        Optional.ofNullable(filterRegex)
+            .filter(StringUtils::isNotBlank)
+            .map(String::trim)
+            .orElse(".+");
+    this.sortOrder = Optional.ofNullable(sortOrder).map(String::trim).orElse("");
     this.hideTextarea = hideTextarea;
+    this.selectEntry = Optional.ofNullable(selectEntry).map(String::trim).orElse("none");
   }
 
   // needed since reflection and Lombok getter generation do not work well together
@@ -193,6 +201,6 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
 
   @Extension
   public static class DescriptorImpl extends ArtifactRepoParamDescriptor {
-    // actual descriptor in base class
+    // check ArtifactRepoParamDescriptor for actual descriptor
   }
 }

@@ -3,8 +3,19 @@
 
     <select class="setting-input" onchange="setValues(this)">
         <option value="">Please select ...</option>
-        <j:forEach var="item" items="${it.result}">
-            <option value="${item.value}" key="${item.key}">${item.value}</option>
+        <j:forEach items="${arpResult}" var="item" varStatus="loop">
+            <j:choose>
+                <j:when test="${selectFirst == loop.first and selectLast == loop.last and !selectNone}">
+                    <option value="${item.value}" key="${item.key}" selected="selected">
+                        ${item.value}
+                    </option>
+                    <j:set var="textareaInitialValue" scope="parent"
+                           value="${item.value + ';' + item.key}"/>
+                </j:when>
+                <j:otherwise>
+                    <option value="${item.value}" key="${item.key}">${item.value}</option>
+                </j:otherwise>
+            </j:choose>
         </j:forEach>
     </select>
 

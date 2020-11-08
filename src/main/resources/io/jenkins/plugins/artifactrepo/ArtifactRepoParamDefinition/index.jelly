@@ -3,6 +3,12 @@
 
     <j:set var="escapeEntryTitleAndDescription" value="false"/>
 
+    <j:set var="arpResult" value="${it.result}"/>
+    <j:set var="selectNone" value="${it.selectEntry eq 'none'}"/>
+    <j:set var="selectFirst" value="${it.selectEntry eq 'first'}"/>
+    <j:set var="selectLast" value="${it.selectEntry eq 'last'}"/>
+    <j:set var="textareaInitialValue" scope="parent" defaultValue="" />
+
     <f:entry title="${it.name}" description="${it.description}">
         <div name="parameter">
             <input type="hidden" name="name" value="${it.name}"/>
@@ -14,7 +20,9 @@
                          'color: #b0b0b0; border: 1px solid #bebebe;'}"/>
 
             <textarea name="value" rows="3" readonly="readonly" class="setting-input"
-                      style="${textAreaCss}"/>
+                      style="${textAreaCss}">
+                ${textareaInitialValue}
+            </textarea>
         </div>
     </f:entry>
 
