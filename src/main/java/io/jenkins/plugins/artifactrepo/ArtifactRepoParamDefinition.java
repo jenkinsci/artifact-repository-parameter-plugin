@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.java.Log;
@@ -54,9 +55,19 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
   private final boolean hideTextarea;
   private final String selectEntry;
 
+  private boolean exceptionThrown = false;
+
   /** Request data from the target instance to display as build parameter. */
   public Map<String, String> getResult() {
-    return Connector.getInstance(this).getResults().entrySet().stream()
+    Map<String, String> result = new HashMap<>();
+    try {
+      result = Connector.getInstance(this).getResults();
+    } catch (Exception e) {
+      exceptionThrown = true;
+      log.log(Level.SEVERE, "An exception occurred while trying to get a result set", e);
+    }
+
+    return result.entrySet().stream()
         .filter(distinctByValue(Entry::getValue))
         .filter(entry -> entry.getValue().matches(filterRegex))
         .sorted(getComparator())

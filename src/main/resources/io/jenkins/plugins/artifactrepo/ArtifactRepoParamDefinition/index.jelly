@@ -7,26 +7,36 @@
     <j:set var="selectNone" value="${it.selectEntry eq 'none'}"/>
     <j:set var="selectFirst" value="${it.selectEntry eq 'first'}"/>
     <j:set var="selectLast" value="${it.selectEntry eq 'last'}"/>
-    <j:set var="textareaInitialValue" scope="parent" defaultValue="" />
+    <j:set var="textareaInitialValue" scope="parent" defaultValue=""/>
 
     <f:entry title="${it.name}" description="${it.description}">
-        <div name="parameter">
-            <input type="hidden" name="name" value="${it.name}"/>
+        <j:choose>
+            <j:when test="${it.exceptionThrown}">
+                <div class="error">${%exceptionMsg}</div>
+            </j:when>
+            <j:when test="${arpResult.size() == 0}">
+                <div class="warning">${%zeroResultsMsg}</div>
+            </j:when>
+            <j:otherwise>
+                <div name="parameter">
+                    <input type="hidden" name="name" value="${it.name}"/>
 
-            <st:include page="index-${it.displayStyle}.jelly"/>
+                    <st:include page="index-${it.displayStyle}.jelly"/>
 
-            <j:set var="textAreaCss"
-                   value="${it.hideTextarea ? 'display:none' :
+                    <j:set var="textAreaCss"
+                           value="${it.hideTextarea ? 'display:none' :
                          'color: #b0b0b0; border: 1px solid #bebebe;'}"/>
 
-            <textarea name="value" rows="3" readonly="readonly" class="setting-input"
-                      style="${textAreaCss}">
-                ${textareaInitialValue}
-            </textarea>
-        </div>
-    </f:entry>
+                    <textarea name="value" rows="3" readonly="readonly" class="setting-input"
+                              style="${textAreaCss}">
+                        ${textareaInitialValue}
+                    </textarea>
+                </div>
 
-    <script src="${rootURL}/plugin/artifact-repository-parameter/js/index.js"
-            type="text/javascript"/>
+                <script src="${rootURL}/plugin/artifact-repository-parameter/js/index.js"
+                        type="text/javascript"/>
+            </j:otherwise>
+        </j:choose>
+    </f:entry>
 
 </j:jelly>

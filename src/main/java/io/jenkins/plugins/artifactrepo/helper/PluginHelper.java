@@ -2,9 +2,9 @@ package io.jenkins.plugins.artifactrepo.helper;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import hudson.ProxyConfiguration;
-import io.jenkins.plugins.artifactrepo.Messages;
 import io.jenkins.plugins.artifactrepo.model.ArtifactRepoParamProxy;
 import io.jenkins.plugins.artifactrepo.model.HttpResponse;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -13,16 +13,15 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.logging.Level;
 import javax.annotation.Nonnull;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import jenkins.model.Jenkins;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import lombok.extern.java.Log;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -44,8 +43,7 @@ import org.apache.http.ssl.SSLContextBuilder;
  * repository instances.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@Log
-public class HttpHelper {
+public class PluginHelper {
 
   private static final int SOCKET_TIMEOUT = 60;
   private static final int CONN_TIMEOUT = 60;
@@ -60,12 +58,8 @@ public class HttpHelper {
    *     pre-emptive authentication (required by Nexus).
    * @return An instance of {@link HttpResponse} with both return code and response payload.
    */
-  public static HttpResponse get(
-      @Nonnull String url, @Nonnull HttpClientBuilder builder, @Nonnull HttpClientContext context) {
-    if (StringUtils.isBlank(url)) {
-      log.info(Messages.log_blankUrl());
-      return HttpResponse.EXCEPTION;
-    }
+  public static HttpResponse get(String url, HttpClientBuilder builder, HttpClientContext context) {
+    Validate.notBlank(url, "The url must not be blank");
 
     try (CloseableHttpClient httpClient = builder.build()) {
       HttpGet get = new HttpGet(url);
@@ -75,15 +69,15 @@ public class HttpHelper {
         int rc = response.getStatusLine().getStatusCode();
         return new HttpResponse(rc, payload);
       }
-    } catch (Exception e) {
-      log.log(Level.SEVERE, "", e);
-      return HttpResponse.EXCEPTION;
+    } catch (IOException e) {
+      throw new IllegalArgumentException(
+          "An exception occurred while requesting data from remote server", e);
     }
   }
 
   /**
-   * Convenience method of {@link HttpHelper#get(String, HttpClientBuilder, HttpClientContext)} with
-   * a default client context.
+   * Convenience method of {@link PluginHelper#get(String, HttpClientBuilder, HttpClientContext)}
+   * with a default client context.
    */
   public static HttpResponse get(@Nonnull String url, @Nonnull HttpClientBuilder builder) {
     return get(url, builder, HttpClientContext.create());
@@ -101,7 +95,7 @@ public class HttpHelper {
   public static HttpClientBuilder getBuilder(
       String repoCredId, ArtifactRepoParamProxy proxy, boolean ignoreSSL) {
     return Optional.of(HttpClients.custom())
-        .map(HttpHelper::addDefaultConfig)
+        .map(builder -> addDefaultConfig(builder))
         .map(builder -> addBasicAuth(builder, repoCredId, proxy))
         .map(builder -> addProxy(builder, proxy))
         .map(builder -> addSslHandling(builder, ignoreSSL))
@@ -112,17 +106,15 @@ public class HttpHelper {
    * Get the Jenkins credentials object of type StandardUsernamePasswordCredentials identified by
    * the provided ID string.
    */
-  public static Optional<StandardUsernamePasswordCredentials> getCredentials(String credId) {
-    if (StringUtils.isBlank(credId)) {
-      log.info(Messages.log_missingCreds());
-      return Optional.empty();
-    }
+  public static StandardUsernamePasswordCredentials getCredentials(String credId) {
+    Validate.notBlank(credId, "The credentials ID must not be blank");
 
     return com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
             StandardUsernamePasswordCredentials.class, Jenkins.get(), null, Collections.emptyList())
         .stream()
         .filter(cred -> StringUtils.equals(cred.getId(), credId))
-        .findFirst();
+        .findFirst()
+        .orElse(null);
   }
 
   /** Takes a URL string and creates a {@link HttpHost} object of it. */
@@ -155,30 +147,25 @@ public class HttpHelper {
       HttpClientBuilder builder, String repoCredId, ArtifactRepoParamProxy proxy) {
     CredentialsProvider httpProvider = new BasicCredentialsProvider();
 
-    Optional<StandardUsernamePasswordCredentials> repoCred = getCredentials(repoCredId);
-    if (repoCred.isPresent()) {
-      httpProvider.setCredentials(
-          AuthScope.ANY,
-          new UsernamePasswordCredentials(
-              repoCred.get().getUsername(), repoCred.get().getPassword().getPlainText()));
-    } else {
-      log.info(Messages.log_invalidCreds(repoCredId));
-    }
+    Optional.of(getCredentials(repoCredId))
+        .ifPresent(
+            repoCred ->
+                httpProvider.setCredentials(
+                    AuthScope.ANY,
+                    new UsernamePasswordCredentials(
+                        repoCred.getUsername(), repoCred.getPassword().getPlainText())));
 
     if (proxy == null || !proxy.isProxyActive()) {
       return builder.setDefaultCredentialsProvider(httpProvider);
     }
 
-    Optional<StandardUsernamePasswordCredentials> proxyCredId =
-        getCredentials(proxy.getProxyCredentialsId());
-    if (proxyCredId.isPresent()) {
-      httpProvider.setCredentials(
-          new AuthScope(proxy.getProxyHost(), Integer.parseInt(proxy.getProxyPort())),
-          new UsernamePasswordCredentials(
-              proxyCredId.get().getUsername(), proxyCredId.get().getPassword().getPlainText()));
-    } else {
-      log.info(Messages.log_invalidCreds(proxyCredId));
-    }
+    Optional.of(getCredentials(proxy.getProxyCredentialsId()))
+        .ifPresent(
+            proxyCredId ->
+                httpProvider.setCredentials(
+                    new AuthScope(proxy.getProxyHost(), Integer.parseInt(proxy.getProxyPort())),
+                    new UsernamePasswordCredentials(
+                        proxyCredId.getUsername(), proxyCredId.getPassword().getPlainText())));
 
     return builder.setDefaultCredentialsProvider(httpProvider);
   }
@@ -201,8 +188,6 @@ public class HttpHelper {
     } else if (jenkinsProxy != null && StringUtils.isNotBlank(jenkinsProxy.name)) {
       // TODO add noProxyHost check
       proxyHost = new HttpHost(jenkinsProxy.name, jenkinsProxy.port);
-    } else {
-      log.info(Messages.log_disabledProxy());
     }
 
     return builder.setProxy(proxyHost);
@@ -225,7 +210,7 @@ public class HttpHelper {
       HostnameVerifier verifier = NoopHostnameVerifier.INSTANCE;
       builder.setSSLSocketFactory(new SSLConnectionSocketFactory(sslContext, verifier));
     } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException e) {
-      log.log(Level.SEVERE, Messages.log_errorCertsProcessing(), e);
+      throw new IllegalArgumentException("Cannot create a valid SSL ignore context", e);
     }
 
     return builder;
