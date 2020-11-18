@@ -5,7 +5,7 @@ import io.jenkins.plugins.artifactrepo.ArtifactRepoParamDefinition;
 import io.jenkins.plugins.artifactrepo.Messages;
 import io.jenkins.plugins.artifactrepo.connectors.Connector;
 import io.jenkins.plugins.artifactrepo.helper.Constants.ParameterType;
-import io.jenkins.plugins.artifactrepo.helper.HttpHelper;
+import io.jenkins.plugins.artifactrepo.helper.PluginHelper;
 import io.jenkins.plugins.artifactrepo.model.HttpResponse;
 import java.net.MalformedURLException;
 import java.util.Arrays;
@@ -13,12 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-import lombok.extern.java.Log;
+import org.apache.commons.lang.Validate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
@@ -34,7 +33,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 /** A class that provides access to the supported REST endpoints of Sonatype Nexus. */
-@Log
 public class Nexus implements Connector {
 
   public static final String ID = "nexus";
@@ -45,7 +43,7 @@ public class Nexus implements Connector {
   public Nexus(@Nonnull ArtifactRepoParamDefinition definition) {
     this.definition = definition;
     httpBuilder =
-        HttpHelper.getBuilder(
+        PluginHelper.getBuilder(
             definition.getCredentialsId(), definition.getProxy(), definition.isIgnoreCertificate());
   }
 
@@ -59,23 +57,18 @@ public class Nexus implements Connector {
       case ParameterType.REPOSITORY:
       case ParameterType.TEST:
         return getRepositoryResult();
+      default:
+        throw new IllegalArgumentException("Invalid parameter type: " + definition.getParamType());
     }
-
-    log.info(Messages.log_invalidParameter(definition.getParamType()));
-    return new HashMap<>();
   }
 
   private Map<String, String> getArtifactResult() {
-    Map<String, String> result = new HashMap<>();
-
     HttpResponse response = getArtifactsResponse(null);
     if (response.getRc() == HttpStatus.SC_OK) {
-      result.putAll(parseArtifactsPayload(response.getPayload()));
-    } else {
-      log.warning(Messages.log_failedRequest(response.getRc()));
+      return new HashMap<>(parseArtifactsPayload(response.getPayload()));
     }
 
-    return result;
+    throw new IllegalArgumentException("HTTP response code is invalid: " + response.getRc());
   }
 
   private Map<String, String> getVersionResult() {
@@ -95,10 +88,9 @@ public class Nexus implements Connector {
     Map<String, String> result = new HashMap<>();
 
     HttpResponse response = getRepositoriesResponse();
-    if (response.getRc() != HttpStatus.SC_OK) {
-      log.warning(Messages.log_failedRequest(response.getRc()));
-      return result;
-    }
+
+    Validate.isTrue(
+        response.getRc() == HttpStatus.SC_OK, Messages.log_failedRequest(response.getRc()));
 
     JSONArray root = new JSONArray(response.getPayload());
     for (int i = 0; i < root.length(); i++) {
@@ -128,11 +120,11 @@ public class Nexus implements Connector {
       url = url + "&continuationToken=" + continuationToken;
     }
 
-    return HttpHelper.get(url, httpBuilder, getPreemptiveAuthContext());
+    return PluginHelper.get(url, httpBuilder, getPreemptiveAuthContext());
   }
 
   private HttpResponse getRepositoriesResponse() {
-    return HttpHelper.get(
+    return PluginHelper.get(
         definition.getServerUrl() + "/service/rest/v1/repositories",
         httpBuilder,
         getPreemptiveAuthContext());
@@ -149,11 +141,9 @@ public class Nexus implements Connector {
       String token = (String) tokenObj;
       if (StringUtils.isNotBlank(token)) {
         HttpResponse response = getArtifactsResponse(token);
-        if (response.getRc() == HttpStatus.SC_OK) {
-          result.putAll(parseArtifactsPayload(response.getPayload()));
-        } else {
-          log.warning(Messages.log_failedRequest(response.getRc()));
-        }
+        Validate.isTrue(
+            response.getRc() == HttpStatus.SC_OK, Messages.log_failedRequest(response.getRc()));
+        result.putAll(parseArtifactsPayload(response.getPayload()));
       }
     }
 
@@ -192,27 +182,30 @@ public class Nexus implements Connector {
 
     HttpClientContext context = HttpClientContext.create();
 
-    Optional<StandardUsernamePasswordCredentials> jenkinsCreds =
-        HttpHelper.getCredentials(definition.getCredentialsId());
-    jenkinsCreds.ifPresent(
-        creds -> {
-          CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-          credentialsProvider.setCredentials(
-              AuthScope.ANY,
-              new UsernamePasswordCredentials(
-                  creds.getUsername(), creds.getPassword().getPlainText()));
+    StandardUsernamePasswordCredentials jenkinsCreds =
+        PluginHelper.getCredentials(definition.getCredentialsId());
 
-          AuthCache authCache = new BasicAuthCache();
-          try {
-            authCache.put(
-                HttpHelper.getHttpHostFromUrl(definition.getServerUrl()), new BasicScheme());
-          } catch (MalformedURLException e) {
-            log.log(Level.SEVERE, Messages.log_invalidUrl(definition.getServerUrl()), e);
-          }
+    Optional.of(jenkinsCreds)
+        .ifPresent(
+            creds -> {
+              CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+              credentialsProvider.setCredentials(
+                  AuthScope.ANY,
+                  new UsernamePasswordCredentials(
+                      creds.getUsername(), creds.getPassword().getPlainText()));
 
-          context.setCredentialsProvider(credentialsProvider);
-          context.setAuthCache(authCache);
-        });
+              AuthCache authCache = new BasicAuthCache();
+              try {
+                authCache.put(
+                    PluginHelper.getHttpHostFromUrl(definition.getServerUrl()), new BasicScheme());
+              } catch (MalformedURLException e) {
+                throw new IllegalArgumentException(
+                    Messages.log_invalidUrl(definition.getServerUrl()), e);
+              }
+
+              context.setCredentialsProvider(credentialsProvider);
+              context.setAuthCache(authCache);
+            });
 
     preemptiveContext = context;
     return context;

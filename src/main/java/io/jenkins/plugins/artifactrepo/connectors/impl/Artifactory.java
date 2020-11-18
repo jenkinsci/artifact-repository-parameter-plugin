@@ -4,7 +4,7 @@ import io.jenkins.plugins.artifactrepo.ArtifactRepoParamDefinition;
 import io.jenkins.plugins.artifactrepo.Messages;
 import io.jenkins.plugins.artifactrepo.connectors.Connector;
 import io.jenkins.plugins.artifactrepo.helper.Constants.ParameterType;
-import io.jenkins.plugins.artifactrepo.helper.HttpHelper;
+import io.jenkins.plugins.artifactrepo.helper.PluginHelper;
 import io.jenkins.plugins.artifactrepo.model.HttpResponse;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,15 +15,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
-import lombok.extern.java.Log;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.apache.http.HttpStatus;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 /** A connector that provides access to the supported REST endpoints of JFrog Artifactory. */
-@Log
 public class Artifactory implements Connector {
 
   public static final String ID = "artifactory";
@@ -33,7 +32,7 @@ public class Artifactory implements Connector {
   public Artifactory(@Nonnull ArtifactRepoParamDefinition definition) {
     this.definition = definition;
     httpBuilder =
-        HttpHelper.getBuilder(
+        PluginHelper.getBuilder(
             definition.getCredentialsId(), definition.getProxy(), definition.isIgnoreCertificate());
   }
 
@@ -47,20 +46,18 @@ public class Artifactory implements Connector {
       case ParameterType.REPOSITORY:
       case ParameterType.TEST:
         return getRepositoryResult();
+      default:
+        throw new IllegalArgumentException(
+            Messages.log_invalidParameter(definition.getParamType()));
     }
-
-    log.info(Messages.log_invalidParameter(definition.getParamType()));
-    return new HashMap<>();
   }
 
   private Map<String, String> getArtifactResult() {
     Map<String, String> result = new HashMap<>();
 
     HttpResponse response = getArtifactsResponse();
-    if (response.getRc() != HttpStatus.SC_OK) {
-      log.warning(Messages.log_failedRequest(response.getRc()));
-      return result;
-    }
+    Validate.isTrue(
+        response.getRc() == HttpStatus.SC_OK, Messages.log_failedRequest(response.getRc()));
 
     JSONObject root = new JSONObject(response.getPayload());
     JSONArray array = root.getJSONArray("results");
@@ -96,7 +93,7 @@ public class Artifactory implements Connector {
       url = url + "&repos=" + definition.getRepoName();
     }
 
-    return HttpHelper.get(url, httpBuilder);
+    return PluginHelper.get(url, httpBuilder);
   }
 
   private Optional<String> extractVersion(@Nonnull String path, @Nonnull Pattern pattern) {
@@ -111,10 +108,8 @@ public class Artifactory implements Connector {
     Map<String, String> result = new HashMap<>();
 
     HttpResponse response = getRepositoriesResponse();
-    if (response.getRc() != HttpStatus.SC_OK) {
-      log.warning(Messages.log_failedRequest(response.getRc()));
-      return result;
-    }
+    Validate.isTrue(
+        response.getRc() == HttpStatus.SC_OK, Messages.log_failedRequest(response.getRc()));
 
     JSONArray root = new JSONArray(response.getPayload());
     for (int i = 0; i < root.length(); i++) {
@@ -136,7 +131,7 @@ public class Artifactory implements Connector {
   }
 
   private HttpResponse getRepositoriesResponse() {
-    return HttpHelper.get(definition.getServerUrl() + "/api/repositories", httpBuilder);
+    return PluginHelper.get(definition.getServerUrl() + "/api/repositories", httpBuilder);
   }
 
   private boolean isValidRepoType(@Nonnull String value) {
