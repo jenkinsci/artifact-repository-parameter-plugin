@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:st="jelly:stapler">
 
-    <j:set var="escapeEntryTitleAndDescription" value="false"/>
+    <j:set var="escapeEntryTitleAndDescription" value="true"/>
 
     <j:set var="arpResult" value="${it.result}"/>
     <j:set var="selectNone" value="${it.selectEntry eq 'none'}"/>
