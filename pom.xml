@@ -4,7 +4,7 @@
 
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>artifact-repository-parameter</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <packaging>hpi</packaging>
     <name>Artifact Repository Parameter Plugin</name>
     <description>
@@ -255,7 +255,7 @@
             scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git
         </developerConnection>
         <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
-        <tag>v1.0.0</tag>
+        <tag>v1.0.1</tag>
     </scm>
 
 </project>
