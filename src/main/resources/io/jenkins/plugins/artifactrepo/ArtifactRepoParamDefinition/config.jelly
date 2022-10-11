@@ -1,5 +1,5 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:c="/lib/credentials" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:c="/lib/credentials" xmlns:f="/lib/form" xmlns:st="jelly:stapler">
 
     <f:entry title="${%name}" field="name">
         <f:textbox/>
@@ -15,7 +15,6 @@
             <f:entry title="${%serverType}" field="serverType">
                 <f:radio name="serverType" value="artifactory" title="${%serverTypeArtifactory}"
                          checked="${instance.serverType eq 'artifactory'}"/>
-                <br/>
                 <f:radio name="serverType" value="nexus" title="${%serverTypeNexus}"
                          checked="${instance.serverType eq 'nexus'}"/>
             </f:entry>
@@ -85,51 +84,37 @@
         <f:section title="${%apiOptions}">
 
             <f:entry title="${%paramType}" field="paramType">
-                <f:radio name="paramType" value="path" title="${%paramTypePath}"
-                         checked="${instance.paramType eq 'path'}"
-                         onclick="showBlock(this)"/>
-                <br/>
-                <f:radio name="paramType" value="version" title="${%paramTypeVersion}"
-                         checked="${instance.paramType eq 'version'}"
-                         onclick="showBlock(this)"/>
-                <br/>
-                <f:radio name="paramType" value="repository" title="${%paramTypeRepo}"
-                         checked="${instance.paramType eq 'repository'}"
-                         onclick="showBlock(this)"/>
+                <div class="arpParamType">
+                    <f:radio name="paramType"
+                             value="path" title="${%paramTypePath}"
+                             checked="${instance.paramType eq 'path'}"/>
+                    <f:radio name="paramType" value="version" title="${%paramTypeVersion}"
+                             checked="${instance.paramType eq 'version'}"/>
+                    <f:radio name="paramType" value="repository" title="${%paramTypeRepo}"
+                             checked="${instance.paramType eq 'repository'}"/>
+                </div>
             </f:entry>
 
             <f:block>
-                <j:set var="displayArtifactBlock"
-                       value="${instance.paramType == 'path' || instance.paramType == 'version' ? 'block' : 'none'}"/>
-                <table style="display:${displayArtifactBlock};" blockId="artifactBlock">
-
+                <div class="arpApiOptionPath">
                     <f:entry title="${%artifactName}" field="artifactName">
-                        <f:textbox style="min-width:400px;"/>
+                        <f:textbox/>
                     </f:entry>
 
                     <f:entry title="${%repoName}" field="repoName">
-                        <f:textbox style="min-width:400px;"/>
+                        <f:textbox/>
                     </f:entry>
-                </table>
-            </f:block>
+                </div>
 
-            <f:block>
-                <j:set var="displayVersionBlock"
-                       value="${instance.paramType eq 'version' ? 'block' : 'none'}"/>
-                <table style="display:${displayVersionBlock};" blockId="versionBlock">
+                <div class="arpApiOptionVersion">
                     <f:entry title="${%versionRegex}"
                              description="${%verionRegexDesc}"
                              field="versionRegex">
-                        <f:textbox style="min-width:400px;"/>
+                        <f:textbox/>
                     </f:entry>
-                </table>
-            </f:block>
+                </div>
 
-            <f:block>
-                <j:set var="displayRepoInfo"
-                       value="${instance.paramType eq 'repository' ? 'block' : 'none'}"/>
-                <table style="display:${displayRepoInfo};" blockId="repoBlock">
-
+                <div class="arpApiOptionRepository">
                     <f:entry title="${%repoType}" field="repoType">
                         <f:checkbox name="repoType" value="local" title="${%repoTypeLocal}"
                                     checked="${instance.repoType.local}"/>
@@ -157,8 +142,7 @@
                         <f:checkbox name="formatType" value="other" title="${%formatTypeOther}"
                                     checked="${instance.formatType.other}"/>
                     </f:entry>
-
-                </table>
+                </div>
             </f:block>
 
         </f:section>
@@ -257,6 +241,7 @@
         </f:section>
     </f:advanced>
 
+    <st:adjunct includes="io.jenkins.plugins.jquery3"/>
     <script src="${rootURL}/plugin/artifact-repository-parameter/js/config.js"/>
 
 </j:jelly>

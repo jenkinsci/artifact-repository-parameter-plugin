@@ -20,8 +20,8 @@ mvn hpi:run -Djetty.port=8888
 > Jenkins in there. The plugins are located in `work/plugins/`. Changes can survive
 > instance restarts.
 
-To change the Jenkins version this plugin depends on simply change the property 
-`jenkins.version` in the Maven POM. Make sure to rely on LTS versions whenever possible. 
+To change the Jenkins version simply change the property `jenkins.version` in the 
+Maven POM. Make sure to rely on LTS versions whenever possible. 
 
 It's possible to automatically install Jenkins plugins to the local instance for testing.
 To do so list them as Maven dependencies but make sure they have a `<scope>test</scope>`
@@ -29,7 +29,7 @@ set.
 
 ## Code Styleguide
 
-This plugin's code follows the [Google style guide for Java][link0] in version 1.7. A
+This plugin's code follows the [Google style guide for Java][link0] in version 1.8. A
 Git pre-push hook gets installed automatically to make sure the code follows this format.
 For IntelliJ IDEA the use of the [google-java-format][link1] plugin is recommended.
 

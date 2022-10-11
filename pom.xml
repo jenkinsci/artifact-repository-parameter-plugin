@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.12</version>
+        <version>4.47</version>
         <relativePath/>
     </parent>
 
@@ -39,12 +39,12 @@
     <properties>
         <encoding>UTF-8</encoding>
         <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
         <maven.version>3.6</maven.version>
         <gitOrga>jenkinsci</gitOrga>
         <!-- Jenkins specific properties -->
-        <jenkins.version>2.190.1</jenkins.version>
-        <java.level>8</java.level>
+        <jenkins.version>2.361.2</jenkins.version>
+        <java.level>11</java.level>
     </properties>
 
     <build>
@@ -67,16 +67,17 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.10.1</version>
                     <configuration>
                         <source>${java.version}</source>
                         <target>${java.version}</target>
+                        <release>${java.version}</release>
                     </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.0.0-M3</version>
+                    <version>3.1.0</version>
                     <executions>
                         <execution>
                             <goals>
@@ -99,48 +100,20 @@
                 <plugin>
                     <groupId>com.diffplug.spotless</groupId>
                     <artifactId>spotless-maven-plugin</artifactId>
-                    <version>2.0.3</version>
+                    <version>2.27.1</version>
                     <configuration>
                         <java>
                             <googleJavaFormat>
-                                <version>1.7</version>
+                                <version>1.15.0</version>
                                 <style>GOOGLE</style>
+                                <reflowLongStrings>true</reflowLongStrings>
                             </googleJavaFormat>
                             <endWithNewline/>
+                            <formatAnnotations />
                             <removeUnusedImports/>
                             <trimTrailingWhitespace/>
                         </java>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>io.github.phillipuniverse</groupId>
-                    <artifactId>githook-maven-plugin</artifactId>
-                    <version>1.0.5</version>
-                    <executions>
-                        <execution>
-                            <phase>validate</phase>
-                            <goals>
-                                <goal>install</goal>
-                            </goals>
-                            <configuration>
-                                <hooks>
-                                    <pre-push>
-                                        # First stash all unstaged files, then apply styles to all
-                                        # files on disk. Afterwards commit any changed file and then
-                                        # get the stashed and untracked files back.
-
-                                        git stash -q --keep-index
-                                        mvn spotless:apply
-                                        RESULT=$?
-                                        git add -A
-                                        git commit -m "Format code according to styleguide" || true
-                                        git stash pop -q
-                                        exit $RESULT
-                                    </pre-push>
-                                </hooks>
-                            </configuration>
-                        </execution>
-                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -151,89 +124,99 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>apache-httpcomponents-client-4-api</artifactId>
-            <version>4.5.10-2.0</version>
+            <version>4.5.13-1.0</version>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>credentials</artifactId>
-            <version>2.3.0</version>
+            <version>2.6.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jenkins.plugins</groupId>
+            <artifactId>jquery3-api</artifactId>
+            <version>3.6.0-4</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jenkins.plugins</groupId>
+            <artifactId>commons-lang3-api</artifactId>
+            <version>3.12.0.0</version>
         </dependency>
         <!-- 3rd party libraries this plugin depends on -->
-        <dependency>
+        <!--<dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.10</version>
-        </dependency>
+            <version>3.12.0</version>
+        </dependency>-->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20200518</version>
+            <version>20220924</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.10</version>
+            <version>1.18.24</version>
             <scope>compile</scope>
         </dependency>
         <!-- 3rd party plugins to be installed to local jenkins for testing, scope must be 'test' -->
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>structs</artifactId>
-            <version>1.20</version>
+            <version>1.24</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci</groupId>
             <artifactId>symbol-annotation</artifactId>
-            <version>1.20</version>
+            <version>1.23</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-api</artifactId>
-            <version>2.36</version>
+            <version>2.47</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-basic-steps</artifactId>
-            <version>2.18</version>
+            <version>2.24</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-cps</artifactId>
-            <version>2.74</version>
+            <version>2.94.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-durable-task-step</artifactId>
-            <version>2.34</version>
+            <version>2.40</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-job</artifactId>
-            <version>2.35</version>
+            <version>2.42</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-step-api</artifactId>
-            <version>2.20</version>
+            <version>2.24</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.26</version>
+            <version>2.0.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.26</version>
+            <version>2.0.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
