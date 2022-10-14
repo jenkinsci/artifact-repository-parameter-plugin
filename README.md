@@ -3,15 +3,18 @@
 The goal of the plugin is to make certain information of an artifact repository available as
 [Jenkins][link2] build parameter. Currently the following endpoints are supported.
 
-* __Path__ - Display all deployed artifacts.
+* __Path__ - Display all deployed artifacts by its path.
 * __Version__ - Display all available versions of an artifact.
 * __Repositories__ - A list of all available repositories.
 
 The following artifact repositories were tested during development.
 
-* __Sonatype Nexus 3 OSS__
-* __JFrog Artifactory 6 Pro__
-* __JFrog Artifactory 7 OSS__
+* __Sonatype Nexus 3 OSS - 3.42.0-01__
+* __JFrog Artifactory Cloud__
+* __JFrog Artifactory 7 OSS - 7.41.13__
+
+> When someone has access to other versions of Nexus/Artifactory it would be nice to 
+> get some feedback whether it's working fine with these versions or not.
 
 ## Configuration
 
@@ -21,12 +24,7 @@ Detailed instructions how to configure the plugin can be found in [docs/Config.m
 
 ### Blue Ocean
 
-The current version of this plugin does not work with Blue Ocean.
-
-### Internet Explorer
-
-The current version of this plugin does not work with any version of Internet Explorer. Use Chrome,
-Firefox or Edge instead.
+The current version of this plugin does not work with Blue Ocean UI.
 
 ## Similar plugins
 

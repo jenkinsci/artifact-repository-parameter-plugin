@@ -1,7 +1,13 @@
 <div>
-    This allows to filter the results returned from the repository before displaying it to the user
-    for selection.
-    Any entry matching the regular expression will be displayed. <br/>
-    To display all entries either leave the field empty or use the regular expression <code
-        style="background-color: lightgrey;">.+</code>.
+    <p>
+        This allows to filter the results returned from the repository before displaying it to the user
+        for selection.
+        Any entry matching the regular expression will be displayed. <br/>
+        To display all entries either leave the field empty or use the regular expression
+        <code style="background-color: lightgrey;">.+</code>.
+    </p>
+    <p>
+        A typical regex for Maven-based artifacts would for example look like
+        <code style="background-color: lightgrey;">.+/(\d+\.\d+(\.\d+(-SNAPSHOT)?)?)/.+</code>
+    </p>
 </div>

@@ -1,52 +1,43 @@
 /**
- * This function is used in config.jelly
+ * These scripts are used in config.jelly
  *
  * Depending on the selection of the parameter type in the API Options section different blocks
  * are displayed/hidden.
- *
- * First it tries to find the closest parent element of type "table". From there it tries to find
- * child elements of type "table" and attribute "blockId" and sets the visibility to either "block"
- * or "none".
- *
- * Function doesn't work with any version of IE!
  */
-function showBlock(element) {
-    if (!element) {
-        return;
+
+function changeOptionsVisibility(option) {
+    const selection = jQuery3(option).val();
+    const parentSection = jQuery3(option).parents("div.jenkins-section");
+
+    const path = jQuery3(parentSection).find("div.arpApiOptionPath");
+    const version = jQuery3(parentSection).find("div.arpApiOptionVersion");
+    const repo = jQuery3(parentSection).find("div.arpApiOptionRepository");
+
+    switch (selection) {
+        case "path":
+            path.show();
+            version.hide();
+            repo.hide();
+            break;
+        case "version":
+            path.show();
+            version.show();
+            repo.hide();
+            break;
+        case "repository":
+            path.hide();
+            version.hide();
+            repo.show();
     }
-
-    const parent = element.closest("table");
-    const value = element.value;
-
-    if (!parent || !value) {
-        return;
-    }
-
-    let blocks2Show = [];
-    let blocks2Hide = [];
-
-    if (value === "repository") {
-        blocks2Hide = ['artifactBlock', 'versionBlock'];
-        blocks2Show = ['repoBlock'];
-    } else if (value === "path") {
-        blocks2Hide = ['repoBlock', 'versionBlock'];
-        blocks2Show = ['artifactBlock'];
-    } else {
-        blocks2Hide = ['repoBlock'];
-        blocks2Show = ['artifactBlock', 'versionBlock'];
-    }
-
-    blocks2Hide.forEach(item => {
-        const block = parent.querySelector("table[blockId='" + item + "']");
-        if (block) {
-            block.style.display = "none";
-        }
-    });
-
-    blocks2Show.forEach(item => {
-        const block = parent.querySelector("table[blockId='" + item + "']");
-        if (block) {
-            block.style.display = "block";
-        }
-    });
 }
+
+jQuery3("div.arpParamType input.jenkins-radio__input").click(function() {
+    changeOptionsVisibility(this);
+});
+
+(function ($) {
+    const checkedOptions = jQuery3("div.arpParamType input.jenkins-radio__input:checked");
+    checkedOptions.each(function(index, element) {
+        changeOptionsVisibility(element);
+    });
+})(jQuery3);

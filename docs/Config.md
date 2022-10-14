@@ -24,7 +24,7 @@ then be verified via the `Test Connection` button.
 > The connection test is done against the repository endpoint by requesting all available
 > repositories and then checking that at least one entry is returned. This check is
 > independent from what is configured later on in the API options.
- 
+
 ![](img/connection_options.png)
  
 The plugin supports the use of an HTTP proxy to access the repository server. There are two
@@ -115,7 +115,8 @@ display all entries out of the box. If the configuration field is left empty an 
 
 `Sort Results` simply sorts the results alphabetically based on the selected order.
 
-`Hide Textarea` allows to hide the textarea displayed below the selection options.
+`Hide Textarea` allows to hide the textarea displayed below the selection options. Check the explanation
+in the build view section below for more information about this feature.
 
 `Select Entry` allows to define whether or not an entry should get pre-selected when opening the
 `Build with Parameters` view. Currently the selection of the first and the last entry are supported.
@@ -128,7 +129,7 @@ sometimes the full information (_e. g. for a repository the full path and not ju
 name_) is required. For this use case the plugin writes whatever was selected to the textarea with
 both the visible label and a corresponding extended value. Both values are seperated by a
 semicolon `;`. When multiple options are selected those will be seperated by a linebreak `\n`.
-The content of this textarea is the actual parameter value that will be made available to the
+The content of this textarea is the actual parameter value that is made available to the
 pipline script. It is then up to the pipeline creator to process the information accordingly and
 decide what information is required for the task. 
 
@@ -136,6 +137,11 @@ decide what information is required for the task.
 > a build it is possible to hide the textarea (see display options above).
 
 ![](img/build_view.png)
+
+> For some reason I couldn't get it to work with the key/value attributes of the checkbox/radio 
+> button. It then only returns true/false depending on the selection and not the values. If someone
+> knows for a way to get this working please feel free to share this information with us. Until 
+> then this "dirty" hack with the textbox was chosen.
 
 
 [link0]: https://docs.oracle.com/javase/tutorial/essential/regex/groups.html
