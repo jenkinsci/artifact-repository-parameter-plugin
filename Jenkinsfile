@@ -3,8 +3,10 @@
  * https://github.com/jenkins-infra/pipeline-library/
  */
 buildPlugin(
-    jenkinsVersions: [ '2.361.2' ],
-    platforms:       [ 'linux', 'windows' ],
-    jdkVersions:     [ 11, 17 ],
-    useAci:          true
+    configurations: [
+        [ platform: "linux",   jdk: "11", jenkins: "2.361.2" ],
+        [ platform: "linux",   jdk: "17", jenkins: "2.361.2" ],
+        [ platform: "windows", jdk: "11", jenkins: "2.361.2" ],
+    ],
+    useContainerAgent:  true
 )
