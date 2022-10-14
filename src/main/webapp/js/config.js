@@ -32,12 +32,12 @@ function changeOptionsVisibility(option) {
 }
 
 jQuery3("div.arpParamType input.jenkins-radio__input").click(function() {
-    changeOptionsVisibility(this)
+    changeOptionsVisibility(this);
 });
 
 (function ($) {
     const checkedOptions = jQuery3("div.arpParamType input.jenkins-radio__input:checked");
     checkedOptions.each(function(index, element) {
-        changeOptionsVisibility(element)
+        changeOptionsVisibility(element);
     });
 })(jQuery3);
