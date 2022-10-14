@@ -37,7 +37,6 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.*;
-import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
 import org.apache.http.ssl.SSLContextBuilder;
 
@@ -182,34 +181,39 @@ public class PluginHelper {
     ProxyConfiguration jenkinsProxy = Jenkins.get().proxy;
 
     if (proxy != null && StringUtils.isNoneBlank(proxy.getProxyHost(), proxy.getProxyPort())) {
-      builder.setProxy(new HttpHost(
-          proxy.getProxyHost(),
-          Integer.parseInt(proxy.getProxyPort()),
-          proxy.getProxyProtocol()));
+      builder.setProxy(
+          new HttpHost(
+              proxy.getProxyHost(),
+              Integer.parseInt(proxy.getProxyPort()),
+              proxy.getProxyProtocol()));
     } else if (jenkinsProxy != null && StringUtils.isNotBlank(jenkinsProxy.name)) {
-      builder.setProxy(new HttpHost(
-              jenkinsProxy.name,
-              jenkinsProxy.port));
-      if(StringUtils.isNotBlank(jenkinsProxy.noProxyHost)) {
-        final List<Pattern> patterns = Arrays.stream(jenkinsProxy.noProxyHost.split(","))
-                .map(s -> s.replaceAll("\\*", ".*")
-                           .replaceAll("\\?", ".")
-                           .replaceAll("\\.", "\\."))
+      builder.setProxy(new HttpHost(jenkinsProxy.name, jenkinsProxy.port));
+      if (StringUtils.isNotBlank(jenkinsProxy.noProxyHost)) {
+        final List<Pattern> patterns =
+            Arrays.stream(jenkinsProxy.noProxyHost.split(","))
+                .map(s -> s.replaceAll("\\*", ".*").replaceAll("\\?", ".").replaceAll("\\.", "\\."))
                 .map(Pattern::compile)
                 .collect(Collectors.toList());
-        builder.setRoutePlanner(new SystemDefaultRoutePlanner(new ProxySelector() {
-          @Override
-          public List<Proxy> select(URI uri) {
-            return Collections.singletonList(patterns.stream().map(p->p.matcher(uri.getHost())).anyMatch(Matcher::matches)
-                    ? Proxy.NO_PROXY
-                    : new Proxy(Proxy.Type.HTTP, new InetSocketAddress(jenkinsProxy.name, jenkinsProxy.port)));
-          }
+        builder.setRoutePlanner(
+            new SystemDefaultRoutePlanner(
+                new ProxySelector() {
+                  @Override
+                  public List<Proxy> select(URI uri) {
+                    return Collections.singletonList(
+                        patterns.stream()
+                                .map(p -> p.matcher(uri.getHost()))
+                                .anyMatch(Matcher::matches)
+                            ? Proxy.NO_PROXY
+                            : new Proxy(
+                                Proxy.Type.HTTP,
+                                new InetSocketAddress(jenkinsProxy.name, jenkinsProxy.port)));
+                  }
 
-          @Override
-          public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
-            throw new RuntimeException("Connection Failed for URI "+uri, ioe);
-          }
-        }));
+                  @Override
+                  public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+                    throw new RuntimeException("Connection Failed for URI " + uri, ioe);
+                  }
+                }));
       }
     }
 
