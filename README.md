@@ -10,16 +10,8 @@ The goal of the plugin is to make certain information of an artifact repository 
 The following artifact repositories were tested during development.
 
 * __Sonatype Nexus 3 OSS - 3.42.0-01__
-  * Generic
-  * Maven
-  * npm
 * __JFrog Artifactory Cloud__
-  * Generic
-  * Maven
-  * npm
-* __JFrog Artifactory 7 OSS__
-  * Generic
-  * Maven
+* __JFrog Artifactory 7 OSS - 7.41.13__
 
 > When someone has access to other versions of Nexus/Artifactory it would be nice to 
 > get some feedback whether it's working fine with these versions or not.
