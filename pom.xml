@@ -133,20 +133,10 @@
         </dependency>
         <dependency>
             <groupId>io.jenkins.plugins</groupId>
-            <artifactId>jquery3-api</artifactId>
-            <version>3.6.0-4</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jenkins.plugins</groupId>
             <artifactId>commons-lang3-api</artifactId>
             <version>3.12.0.0</version>
         </dependency>
         <!-- 3rd party libraries this plugin depends on -->
-        <!--<dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
-        </dependency>-->
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
