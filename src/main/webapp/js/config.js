@@ -1,6 +1,4 @@
 /**
- * This function is used in config.jelly
- *
  * Depending on the selection of the parameter type in the API Options section different
  * options are displayed/hidden.
  */
@@ -23,5 +21,20 @@ function showOptions(element) {
         pathOption.style.display = "none";
         versionOption.style.display = "none";
         repoOption.style.display = "block";
+    }
+}
+
+/**
+ * Checks whether the regex textbox for the entry pre-selection should get displayed or not.
+ */
+function toggleRegex(element) {
+    const value = element.value;
+    const parent = element.closest("div.jenkins-section");
+    const divRegex = parent.querySelector("div.arpSelectRegex");
+
+    if(value === "regex") {
+        divRegex.style.display = "block";
+    } else {
+        divRegex.style.display = "none";
     }
 }

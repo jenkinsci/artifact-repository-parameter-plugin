@@ -5,19 +5,20 @@
         <j:forEach items="${arpResult}" var="item" varStatus="loop">
             <label>
                 <j:choose>
-                    <j:when test="${selectFirst == loop.first and selectLast == loop.last and !selectNone}">
-                        <input type="checkbox" value="${item.value}" key="${item.key}"
+                    <j:when test="${item.value.selected == true}">
+                        <input type="checkbox" value="${item.value.value}" key="${item.value.key}"
                                checked="checked"
                                onclick="setValues(this)"/>
                         <j:set var="textareaInitialValue" scope="parent"
                                value="${item.value + ';' + item.key}"/>
                     </j:when>
                     <j:otherwise>
-                        <input type="checkbox" value="${item.value}" key="${item.key}"
+                        <input type="checkbox" value="${item.value.value}" key="${item.value.key}"
                                onclick="setValues(this)"/>
                     </j:otherwise>
                 </j:choose>
-                ${item.value}
+                ${item.value.value}
+                <span style="font-size: 80%;">(${item.value.key})</span>
             </label>
             <br/>
         </j:forEach>

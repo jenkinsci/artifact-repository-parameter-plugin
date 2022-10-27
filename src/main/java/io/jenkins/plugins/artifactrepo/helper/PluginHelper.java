@@ -52,7 +52,7 @@ public class PluginHelper {
   private static final String AGENT = "Jenkins Plugin - Artifact Repository Parameter";
 
   /**
-   * A generic implementation to do GET requests will automatic resource clean up.
+   * A generic implementation to do GET requests with automatic resource clean up.
    *
    * @param url The URL to call
    * @param builder The builder object used to create the {@link org.apache.http.client.HttpClient}.
@@ -92,7 +92,7 @@ public class PluginHelper {
    *     target repository instance.
    * @param proxy A proxy object with all the proxy information in it.
    * @param ignoreSSL Whether or not to ignore invalid SSL certificates (e. g. self-signed).
-   * @return An {@link HttpClientBuilder} object with some pre-defined configuraitons.
+   * @return An {@link HttpClientBuilder} object with some pre-defined configurations.
    */
   public static HttpClientBuilder getBuilder(
       String repoCredId, ArtifactRepoParamProxy proxy, boolean ignoreSSL) {
@@ -188,9 +188,9 @@ public class PluginHelper {
               proxy.getProxyProtocol()));
     } else if (jenkinsProxy != null && StringUtils.isNotBlank(jenkinsProxy.name)) {
       builder.setProxy(new HttpHost(jenkinsProxy.name, jenkinsProxy.port));
-      if (StringUtils.isNotBlank(jenkinsProxy.noProxyHost)) {
+      if (StringUtils.isNotBlank(jenkinsProxy.getNoProxyHost())) {
         final List<Pattern> patterns =
-            Arrays.stream(jenkinsProxy.noProxyHost.split(","))
+            Arrays.stream(jenkinsProxy.getNoProxyHost().split(","))
                 .map(s -> s.replaceAll("\\*", ".*").replaceAll("\\?", ".").replaceAll("\\.", "\\."))
                 .map(Pattern::compile)
                 .collect(Collectors.toList());

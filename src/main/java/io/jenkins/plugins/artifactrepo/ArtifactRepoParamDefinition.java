@@ -1,5 +1,6 @@
 package io.jenkins.plugins.artifactrepo;
 
+import static java.util.function.Predicate.not;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import hudson.Extension;
@@ -12,9 +13,11 @@ import io.jenkins.plugins.artifactrepo.helper.Constants.ParameterType;
 import io.jenkins.plugins.artifactrepo.model.ArtifactRepoParamProxy;
 import io.jenkins.plugins.artifactrepo.model.FormatType;
 import io.jenkins.plugins.artifactrepo.model.RepoType;
+import io.jenkins.plugins.artifactrepo.model.ResultEntry;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -33,7 +36,6 @@ import org.kohsuke.stapler.StaplerRequest;
 public class ArtifactRepoParamDefinition extends ParameterDefinition {
 
   // properties from config.jelly
-  private final String uid;
   // connection options
   private final String serverType;
   private final String serverUrl;
@@ -54,27 +56,32 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
   private final String sortOrder;
   private final boolean hideTextarea;
   private final String selectEntry;
+  private final String selectRegex;
 
   private boolean exceptionThrown = false;
 
   /** Request data from the target instance to display as build parameter. */
-  public Map<String, String> getResult() {
-    Map<String, String> result = new HashMap<>();
+  public TreeMap<String, ResultEntry> getResult() {
+    Map<String, String> entries = new HashMap<>();
     try {
-      result = Connector.getInstance(this).getResults();
+      entries = Connector.getInstance(this).getResults();
     } catch (Exception e) {
       exceptionThrown = true;
       log.log(Level.SEVERE, "An exception occurred while trying to get a result set", e);
     }
 
-    return result.entrySet().stream()
-        .filter(distinctByValue(Entry::getValue))
-        .filter(entry -> entry.getValue().matches(filterRegex))
-        .sorted(getComparator())
-        .limit(resultsCount)
-        .collect(
-            Collectors.toMap(
-                Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+    TreeMap<String, ResultEntry> result =
+        entries.entrySet().stream()
+            .filter(distinctByValue(Entry::getValue))
+            .filter(entry -> entry.getValue().matches(filterRegex))
+            .sorted(getComparator())
+            .limit(resultsCount)
+            .map(entry -> new ResultEntry(entry.getKey(), entry.getValue()))
+            .collect(
+                Collectors.toMap(
+                    ResultEntry::getKey, Function.identity(), (o, n) -> n, TreeMap::new));
+
+    return markPreselectedEntries(result);
   }
 
   /** Distinct result map by value */
@@ -92,6 +99,39 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
       comparator = comparator.reversed();
     }
     return comparator;
+  }
+
+  /** Check if some entries must get pre-selected. */
+  private TreeMap<String, ResultEntry> markPreselectedEntries(
+      TreeMap<String, ResultEntry> entries) {
+    if (entries.isEmpty()) {
+      return entries;
+    }
+
+    switch (selectEntry) {
+      case "first":
+        entries.firstEntry().getValue().setSelected(true);
+        break;
+      case "last":
+        entries.lastEntry().getValue().setSelected(true);
+        break;
+      case "regex":
+        AtomicBoolean stopAction = new AtomicBoolean(false);
+        entries.values().stream()
+            .filter(not(e -> stopAction.get()))
+            .filter(e -> e.getKey().matches(selectRegex))
+            .forEach(
+                entry -> {
+                  if (List.of("dropdown", "radio").contains(displayStyle)) {
+                    stopAction.set(true);
+                  }
+                  entry.setSelected(true);
+                });
+        break;
+      default:
+    }
+
+    return entries;
   }
 
   /** Constructor is used during connection validation test. */
@@ -120,7 +160,8 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
         null,
         null,
         false,
-        "none");
+        "none",
+        "");
   }
 
   @DataBoundConstructor
@@ -143,10 +184,11 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
       String filterRegex,
       String sortOrder,
       boolean hideTextarea,
-      String selectEntry) {
+      String selectEntry,
+      String selectRegex) {
 
-    super(name, description);
-    uid = StringUtils.substringAfterLast(UUID.randomUUID().toString(), "-");
+    super(name);
+    setDescription(description);
 
     // connection options
     this.serverType = Optional.ofNullable(serverType).map(String::trim).orElse("");
@@ -176,6 +218,7 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
     this.sortOrder = Optional.ofNullable(sortOrder).map(String::trim).orElse("");
     this.hideTextarea = hideTextarea;
     this.selectEntry = Optional.ofNullable(selectEntry).map(String::trim).orElse("none");
+    this.selectRegex = Optional.ofNullable(selectRegex).map(String::trim).orElse("");
   }
 
   // needed since reflection and Lombok getter generation do not work well together

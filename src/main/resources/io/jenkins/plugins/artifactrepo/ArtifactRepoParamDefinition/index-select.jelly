@@ -4,15 +4,17 @@
     <select size="10" multiple="true" class="setting-input" onchange="setValues(this)">
         <j:forEach items="${arpResult}" var="item" varStatus="loop">
             <j:choose>
-                <j:when test="${selectFirst == loop.first and selectLast == loop.last and !selectNone}">
-                    <option value="${item.value}" key="${item.key}" selected="selected">
-                        ${item.value}
+                <j:when test="${item.value.selected == true}">
+                    <option value="${item.value.value}" key="${item.value.key}" selected="selected">
+                        ${item.value.value} (${item.value.key})
                     </option>
                     <j:set var="textareaInitialValue" scope="parent"
-                           value="${item.value + ';' + item.key}"/>
+                           value="${item.value.value + ';' + item.value.key}"/>
                 </j:when>
                 <j:otherwise>
-                    <option value="${item.value}" key="${item.key}">${item.value}</option>
+                    <option value="${item.value.value}" key="${item.value.key}">
+                        ${item.value.value} (${item.value.key})
+                    </option>
                 </j:otherwise>
             </j:choose>
         </j:forEach>
