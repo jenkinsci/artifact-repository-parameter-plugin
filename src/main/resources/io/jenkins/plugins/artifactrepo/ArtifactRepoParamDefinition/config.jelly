@@ -237,24 +237,55 @@
                 </select>
             </f:entry>
 
-            <f:entry title="${%hideTextarea}" field="hideTextarea">
-                <f:checkbox default="false"/>
-            </f:entry>
-
             <f:entry title="${%selectEntry}" field="selectEntry">
                 <select name="selectEntry" onchange="toggleRegex(this)">
                     <option value="none">${%selectNone}</option>
-                    <option value="first">${%selectFirst}</option>
-                    <option value="last">${%selectLast}</option>
-                    <option value="regex">${%selectRegex2}</option>
+
+                    <j:choose>
+                        <j:when test="${instance.selectEntry eq 'first'}">
+                            <option value="first" selected="selected">${%selectFirst}</option>
+                        </j:when>
+                        <j:otherwise>
+                            <option value="first">${%selectFirst}</option>
+                        </j:otherwise>
+                    </j:choose>
+
+                    <j:choose>
+                        <j:when test="${instance.selectEntry eq 'last'}">
+                            <option value="last" selected="selected">${%selectLast}</option>
+                        </j:when>
+                        <j:otherwise>
+                            <option value="last">${%selectLast}</option>
+                        </j:otherwise>
+                    </j:choose>
+
+                    <j:choose>
+                        <j:when test="${instance.selectEntry eq 'regex'}">
+                            <option value="regex" selected="selected">${%selectRegex2}</option>
+                        </j:when>
+                        <j:otherwise>
+                            <option value="regex">${%selectRegex2}</option>
+                        </j:otherwise>
+                    </j:choose>
                 </select>
             </f:entry>
 
-            <div class="arpSelectRegex" style="display: none;">
-                <f:entry title="${%selectRegex}" field="selectRegex">
-                    <f:textbox/>
-                </f:entry>
-            </div>
+            <j:choose>
+                <j:when test="${instance.selectEntry eq 'regex'}">
+                    <div class="arpSelectRegex" style="display: block;">
+                        <f:entry title="${%selectRegex}" field="selectRegex">
+                            <f:textbox/>
+                        </f:entry>
+                    </div>
+                </j:when>
+                <j:otherwise>
+                    <div class="arpSelectRegex" style="display: none;">
+                        <f:entry title="${%selectRegex}" field="selectRegex">
+                            <f:textbox/>
+                        </f:entry>
+                    </div>
+                </j:otherwise>
+            </j:choose>
 
         </f:section>
     </f:advanced>

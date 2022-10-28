@@ -1,19 +1,17 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core">
 
-    <select size="10" multiple="true" class="setting-input" onchange="setValues(this)">
+    <select name="value" size="10" multiple="true">
         <j:forEach items="${arpResult}" var="item" varStatus="loop">
             <j:choose>
                 <j:when test="${item.value.selected == true}">
-                    <option value="${item.value.value}" key="${item.value.key}" selected="selected">
-                        ${item.value.value} (${item.value.key})
+                    <option value="${item.value.value};${item.value.key}" selected="selected">
+                        ${item.value.value}
                     </option>
-                    <j:set var="textareaInitialValue" scope="parent"
-                           value="${item.value.value + ';' + item.value.key}"/>
                 </j:when>
                 <j:otherwise>
-                    <option value="${item.value.value}" key="${item.value.key}">
-                        ${item.value.value} (${item.value.key})
+                    <option value="${item.value.value};${item.value.key}">
+                        ${item.value.value}
                     </option>
                 </j:otherwise>
             </j:choose>

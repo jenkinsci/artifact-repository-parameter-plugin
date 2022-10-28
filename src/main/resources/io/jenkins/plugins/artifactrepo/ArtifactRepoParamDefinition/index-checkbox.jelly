@@ -6,19 +6,13 @@
             <label>
                 <j:choose>
                     <j:when test="${item.value.selected == true}">
-                        <input type="checkbox" value="${item.value.value}" key="${item.value.key}"
-                               checked="checked"
-                               onclick="setValues(this)"/>
-                        <j:set var="textareaInitialValue" scope="parent"
-                               value="${item.value + ';' + item.key}"/>
+                        <input name="${it.checkboxPrefix}${item.value.value};${item.value.key}" type="checkbox" checked="checked"/>
                     </j:when>
                     <j:otherwise>
-                        <input type="checkbox" value="${item.value.value}" key="${item.value.key}"
-                               onclick="setValues(this)"/>
+                        <input name="${it.checkboxPrefix}${item.value.value};${item.value.key}" type="checkbox"/>
                     </j:otherwise>
+                    ${item.value.value}
                 </j:choose>
-                ${item.value.value}
-                <span style="font-size: 80%;">(${item.value.key})</span>
             </label>
             <br/>
         </j:forEach>

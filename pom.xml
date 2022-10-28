@@ -45,6 +45,8 @@
         <!-- Jenkins specific properties -->
         <jenkins.version>2.361.2</jenkins.version>
         <java.level>11</java.level>
+        <!-- Google code style guide -->
+        <google.java.format>1.15.0</google.java.format>
     </properties>
 
     <build>
@@ -104,7 +106,7 @@
                     <configuration>
                         <java>
                             <googleJavaFormat>
-                                <version>1.15.0</version>
+                                <version>${google.java.format}</version>
                                 <style>GOOGLE</style>
                                 <reflowLongStrings>true</reflowLongStrings>
                             </googleJavaFormat>

@@ -60,7 +60,8 @@ public class PluginHelper {
    *     pre-emptive authentication (required by Nexus).
    * @return An instance of {@link HttpResponse} with both return code and response payload.
    */
-  public static HttpResponse get(String url, HttpClientBuilder builder, HttpClientContext context) {
+  public static HttpResponse get(
+      @Nonnull String url, @Nonnull HttpClientBuilder builder, @Nonnull HttpClientContext context) {
     Validate.notBlank(url, "The url must not be blank");
 
     try (CloseableHttpClient httpClient = builder.build()) {
@@ -95,7 +96,7 @@ public class PluginHelper {
    * @return An {@link HttpClientBuilder} object with some pre-defined configurations.
    */
   public static HttpClientBuilder getBuilder(
-      String repoCredId, ArtifactRepoParamProxy proxy, boolean ignoreSSL) {
+      @Nonnull String repoCredId, @Nonnull ArtifactRepoParamProxy proxy, boolean ignoreSSL) {
     return Optional.of(HttpClients.custom())
         .map(builder -> addDefaultConfig(builder))
         .map(builder -> addBasicAuth(builder, repoCredId, proxy))
@@ -108,7 +109,7 @@ public class PluginHelper {
    * Get the Jenkins credentials object of type StandardUsernamePasswordCredentials identified by
    * the provided ID string.
    */
-  public static StandardUsernamePasswordCredentials getCredentials(String credId) {
+  public static StandardUsernamePasswordCredentials getCredentials(@Nonnull String credId) {
     Validate.notBlank(credId, "The credentials ID must not be blank");
 
     return com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
@@ -130,7 +131,7 @@ public class PluginHelper {
    * Adds a default request configuration that includes user agent, redirect and timeout
    * information.
    */
-  private static HttpClientBuilder addDefaultConfig(HttpClientBuilder builder) {
+  private static HttpClientBuilder addDefaultConfig(@Nonnull HttpClientBuilder builder) {
     RequestConfig.Builder configBuilder =
         RequestConfig.copy(RequestConfig.DEFAULT)
             .setSocketTimeout(SOCKET_TIMEOUT * 1000)
@@ -146,7 +147,9 @@ public class PluginHelper {
    * credentials provider.
    */
   private static HttpClientBuilder addBasicAuth(
-      HttpClientBuilder builder, String repoCredId, ArtifactRepoParamProxy proxy) {
+      @Nonnull HttpClientBuilder builder,
+      @Nonnull String repoCredId,
+      ArtifactRepoParamProxy proxy) {
     CredentialsProvider httpProvider = new BasicCredentialsProvider();
 
     Optional.of(getCredentials(repoCredId))
@@ -177,7 +180,7 @@ public class PluginHelper {
    * builder.
    */
   private static HttpClientBuilder addProxy(
-      HttpClientBuilder builder, ArtifactRepoParamProxy proxy) {
+      @Nonnull HttpClientBuilder builder, ArtifactRepoParamProxy proxy) {
     ProxyConfiguration jenkinsProxy = Jenkins.get().proxy;
 
     if (proxy != null && StringUtils.isNoneBlank(proxy.getProxyHost(), proxy.getProxyPort())) {
@@ -224,7 +227,8 @@ public class PluginHelper {
    * Depending on what was configured in the Jenkins build config the builder may accept invalid SSL
    * certificates.
    */
-  private static HttpClientBuilder addSslHandling(HttpClientBuilder builder, boolean ignoreSSL) {
+  private static HttpClientBuilder addSslHandling(
+      @Nonnull HttpClientBuilder builder, boolean ignoreSSL) {
     if (!ignoreSSL) {
       return builder;
     }

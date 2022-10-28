@@ -1,15 +1,15 @@
 package io.jenkins.plugins.artifactrepo;
 
+import static io.jenkins.plugins.artifactrepo.helper.Constants.ParameterValue.VALUE_PREFIX;
 import static java.util.function.Predicate.not;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
 
 import hudson.Extension;
 import hudson.model.ParameterDefinition;
 import hudson.model.ParameterValue;
-import hudson.model.StringParameterValue;
 import io.jenkins.plugins.artifactrepo.connectors.Connector;
 import io.jenkins.plugins.artifactrepo.helper.AlphanumComparator;
 import io.jenkins.plugins.artifactrepo.helper.Constants.ParameterType;
+import io.jenkins.plugins.artifactrepo.helper.ParameterValueHelper;
 import io.jenkins.plugins.artifactrepo.model.ArtifactRepoParamProxy;
 import io.jenkins.plugins.artifactrepo.model.FormatType;
 import io.jenkins.plugins.artifactrepo.model.RepoType;
@@ -24,9 +24,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.java.Log;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -36,6 +34,7 @@ import org.kohsuke.stapler.StaplerRequest;
 public class ArtifactRepoParamDefinition extends ParameterDefinition {
 
   // properties from config.jelly
+  private final String checkboxPrefix = VALUE_PREFIX;
   // connection options
   private final String serverType;
   private final String serverUrl;
@@ -54,7 +53,6 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
   private final int resultsCount;
   private final String filterRegex;
   private final String sortOrder;
-  private final boolean hideTextarea;
   private final String selectEntry;
   private final String selectRegex;
 
@@ -62,6 +60,7 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
 
   /** Request data from the target instance to display as build parameter. */
   public TreeMap<String, ResultEntry> getResult() {
+    exceptionThrown = false;
     Map<String, String> entries = new HashMap<>();
     try {
       entries = Connector.getInstance(this).getResults();
@@ -159,7 +158,6 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
         null,
         null,
         null,
-        false,
         "none",
         "");
   }
@@ -183,7 +181,6 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
       String resultsCount,
       String filterRegex,
       String sortOrder,
-      boolean hideTextarea,
       String selectEntry,
       String selectRegex) {
 
@@ -216,7 +213,6 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
             .map(String::trim)
             .orElse(".+");
     this.sortOrder = Optional.ofNullable(sortOrder).map(String::trim).orElse("");
-    this.hideTextarea = hideTextarea;
     this.selectEntry = Optional.ofNullable(selectEntry).map(String::trim).orElse("none");
     this.selectRegex = Optional.ofNullable(selectRegex).map(String::trim).orElse("");
   }
@@ -228,29 +224,12 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
 
   @Override
   public ParameterValue createValue(StaplerRequest request, JSONObject json) {
-    Object jsonValue = json.get("value");
-    String name = Optional.ofNullable(json.getString("name")).orElse("MISSING");
-    String value = EMPTY;
-
-    if (jsonValue instanceof String) {
-      value = (String) jsonValue;
-    } else if (jsonValue instanceof JSONArray) {
-      JSONArray jsonArray = (JSONArray) jsonValue;
-      value = jsonArray.stream().map(Object::toString).collect(Collectors.joining("\\n"));
-    }
-
-    return new StringParameterValue(name, value, getDescription());
+    return ParameterValueHelper.createValue(request, json);
   }
 
   @Override
   public ParameterValue createValue(StaplerRequest request) {
-    String[] values = request.getParameterValues(getName());
-    if (ArrayUtils.isEmpty(values) || StringUtils.isBlank(values[0])) {
-      return null;
-    }
-    String value = values[0];
-
-    return new StringParameterValue(getName(), value, getDescription());
+    return ParameterValueHelper.createValue(request);
   }
 
   @Extension
