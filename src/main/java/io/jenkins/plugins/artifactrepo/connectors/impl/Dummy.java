@@ -10,8 +10,8 @@ import java.util.List;
  */
 public class Dummy implements Connector {
 
-  @Override
-  public List<ResultEntry> getResults() {
-    return List.of();
-  }
+    @Override
+    public List<ResultEntry> getResults() {
+        return List.of();
+    }
 }
