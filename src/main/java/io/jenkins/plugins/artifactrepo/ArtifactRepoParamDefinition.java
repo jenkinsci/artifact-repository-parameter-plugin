@@ -54,6 +54,7 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
   private final String selectEntry;
   private final String selectRegex;
   private final String selectRegexStyle;
+  private final String submitValue;
   private boolean exceptionThrown = false;
   private transient Map<String, ResultEntry> result;
 
@@ -83,7 +84,8 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
         null,
         null,
         "none",
-        "");
+        "",
+        "both");
   }
 
   @DataBoundConstructor
@@ -106,7 +108,8 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
       String filterRegex,
       String sortOrder,
       String selectEntry,
-      String selectRegex) {
+      String selectRegex,
+      String submitValue) {
 
     super(name);
     setDescription(description);
@@ -140,6 +143,7 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
     this.selectEntry = Optional.ofNullable(selectEntry).map(String::trim).orElse("none");
     this.selectRegexStyle = "regex".equals(this.selectEntry) ? "block" : "none";
     this.selectRegex = Optional.ofNullable(selectRegex).map(String::trim).orElse("");
+    this.submitValue = Optional.ofNullable(submitValue).map(String::trim).orElse("both");
   }
 
   /** Request data from the target instance to display as build parameter. */
@@ -160,6 +164,7 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
 
     Map<String, ResultEntry> resultEntries = new LinkedHashMap<>();
     repoEntries.stream()
+        .map(this::checkSubmitValue)
         .filter(this::filterRegex)
         .sorted(this::sortResult)
         .limit(resultsCount)
@@ -168,6 +173,24 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
     return result;
   }
 
+  /**
+   * Checks if only the label value should get send to the build pipeline and if so will change the
+   * value of the given entry to the same value as the key.
+   */
+  private ResultEntry checkSubmitValue(ResultEntry entry) {
+    if ("label".equals(submitValue)) {
+      entry.setSubmitValue(entry.getKey());
+    } else if ("path".equals(submitValue)) {
+      entry.setSubmitValue(entry.getValue());
+    }
+
+    return entry;
+  }
+
+  /**
+   * Filter search results by a given regex. It will check both key and value for a match with the
+   * regex and if neither matches the regex it will get removed.
+   */
   private boolean filterRegex(@Nonnull ResultEntry entry) {
     if (StringUtils.isBlank(filterRegex)) {
       return true;
@@ -176,6 +199,10 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
     return entry.getKey().matches(filterRegex) || entry.getValue().matches(filterRegex);
   }
 
+  /**
+   * Sort the result list by key value. Depending on config it will be sorted ascending or
+   * descending.
+   */
   private int sortResult(@Nonnull ResultEntry entry1, @Nonnull ResultEntry entry2) {
     if ("desc".equals(sortOrder)) {
       return comparator.compare(entry2.getKey(), entry1.getKey());
@@ -184,6 +211,11 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
     }
   }
 
+  /**
+   * Allows to mark some result entries to be preselected upon opening the start build view. Due to
+   * the possibility to mark first or last entry to be selected it cannot be part of the stream and
+   * must be done afterwards.
+   */
   private Map<String, ResultEntry> markPreselectedEntries(Map<String, ResultEntry> entries) {
     if (entries.isEmpty()) {
       return entries;
@@ -217,6 +249,10 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
     return entries;
   }
 
+  /**
+   * If the selection option is set to regex it will find entries matching the given regex (both key
+   * and value are checked) and any entry that matches the regex will be marked to be pre-selected.
+   */
   private boolean selectedRegex(@Nonnull Map.Entry<String, ResultEntry> entry) {
     if (StringUtils.isBlank(selectRegex)) {
       return false;

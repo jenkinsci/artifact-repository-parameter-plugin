@@ -233,4 +233,12 @@ public class ArtifactRepoParamDescriptor extends ParameterDescriptor {
     model.add(Messages.selection_selectEntry_regex(), "regex");
     return model;
   }
+
+  public ListBoxModel doFillSubmitValueItems() {
+    ListBoxModel model = new ListBoxModel();
+    model.add(Messages.selection_submitValue_both(), "both");
+    model.add(Messages.selection_submitValue_label(), "label");
+    model.add(Messages.selection_submitValue_path(), "path");
+    return model;
+  }
 }
