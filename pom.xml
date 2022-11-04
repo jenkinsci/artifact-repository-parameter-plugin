@@ -45,6 +45,8 @@
         <!-- Jenkins specific properties -->
         <jenkins.version>2.361.2</jenkins.version>
         <java.level>11</java.level>
+        <!-- Google code style guide -->
+        <google.java.format>1.15.0</google.java.format>
     </properties>
 
     <build>
@@ -104,7 +106,7 @@
                     <configuration>
                         <java>
                             <googleJavaFormat>
-                                <version>1.15.0</version>
+                                <version>${google.java.format}</version>
                                 <style>GOOGLE</style>
                                 <reflowLongStrings>true</reflowLongStrings>
                             </googleJavaFormat>
@@ -151,8 +153,14 @@
         <!-- 3rd party plugins to be installed to local jenkins for testing, scope must be 'test' -->
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
+            <artifactId>pipeline-stage-step</artifactId>
+            <version>296.v5f6908f017a_5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>structs</artifactId>
-            <version>1.24</version>
+            <version>308.v852b473a2b8c</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -164,7 +172,7 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-api</artifactId>
-            <version>2.47</version>
+            <version>1192.v2d0deb_19d212</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -194,7 +202,7 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins.workflow</groupId>
             <artifactId>workflow-step-api</artifactId>
-            <version>2.24</version>
+            <version>639.v6eca_cd8c04a_a_</version>
             <scope>test</scope>
         </dependency>
         <dependency>

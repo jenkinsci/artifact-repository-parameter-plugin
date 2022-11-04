@@ -12,7 +12,7 @@ mvn clean install
 To start a local Jenkins instance with the plugin installed run the following command
 and afterwards navigate to [http://localhost:8888/jenkins](http://localhost:8888/jenkins).
 ```
-MAVEN_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=8000,suspend=n" \
+MAVEN_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=5005,suspend=n" \
 mvn hpi:run -Djetty.port=8888
 ```
 
@@ -29,7 +29,7 @@ set.
 
 ## Code Styleguide
 
-This plugin's code follows the [Google style guide for Java][link0] in version 1.8. A
+This plugin's code follows the [Google style guide for Java][link0] in version 1.15.0. A
 Git pre-push hook gets installed automatically to make sure the code follows this format.
 For IntelliJ IDEA the use of the [google-java-format][link1] plugin is recommended.
 

@@ -1,8 +1,8 @@
 package io.jenkins.plugins.artifactrepo.connectors.impl;
 
 import io.jenkins.plugins.artifactrepo.connectors.Connector;
-import java.util.HashMap;
-import java.util.Map;
+import io.jenkins.plugins.artifactrepo.model.ResultEntry;
+import java.util.List;
 
 /**
  * A dummy implementation used as a fallback in case a regular connector cannot be obtained. Returns
@@ -11,7 +11,7 @@ import java.util.Map;
 public class Dummy implements Connector {
 
   @Override
-  public Map<String, String> getResults() {
-    return new HashMap<>();
+  public List<ResultEntry> getResults() {
+    return List.of();
   }
 }

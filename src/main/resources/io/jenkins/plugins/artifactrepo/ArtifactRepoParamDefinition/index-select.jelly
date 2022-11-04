@@ -1,21 +1,19 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
 
-    <select size="10" multiple="true" class="setting-input" onchange="setValues(this)">
-        <j:forEach items="${arpResult}" var="item" varStatus="loop">
-            <j:choose>
-                <j:when test="${selectFirst == loop.first and selectLast == loop.last and !selectNone}">
-                    <option value="${item.value}" key="${item.key}" selected="selected">
-                        ${item.value}
-                    </option>
-                    <j:set var="textareaInitialValue" scope="parent"
-                           value="${item.value + ';' + item.key}"/>
-                </j:when>
-                <j:otherwise>
-                    <option value="${item.value}" key="${item.key}">${item.value}</option>
-                </j:otherwise>
-            </j:choose>
-        </j:forEach>
-    </select>
+    <j:forEach items="${it.result}" var="item" varStatus="loop">
+        <j:choose>
+            <j:when test="${item.value.selected == true}">
+                <option value="${item.value.key};${item.value.value}" selected="selected">
+                    ${item.value.key}
+                </option>
+            </j:when>
+            <j:otherwise>
+                <option value="${item.value.key};${item.value.value}">
+                    ${item.value.key}
+                </option>
+            </j:otherwise>
+        </j:choose>
+    </j:forEach>
 
 </j:jelly>

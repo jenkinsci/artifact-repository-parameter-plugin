@@ -138,10 +138,6 @@ decide what information is required for the task.
 
 ![](img/build_view.png)
 
-> For some reason I couldn't get it to work with the key/value attributes of the checkbox/radio 
-> button. It then only returns true/false depending on the selection and not the values. If someone
-> knows for a way to get this working please feel free to share this information with us. Until 
-> then this "dirty" hack with the textbox was chosen.
 
 
 [link0]: https://docs.oracle.com/javase/tutorial/essential/regex/groups.html

@@ -13,10 +13,7 @@
         <f:section title="${%connectionOptions}">
 
             <f:entry title="${%serverType}" field="serverType">
-                <f:radio name="serverType" value="artifactory" title="${%serverTypeArtifactory}"
-                         checked="${instance.serverType eq 'artifactory'}"/>
-                <f:radio name="serverType" value="nexus" title="${%serverTypeNexus}"
-                         checked="${instance.serverType eq 'nexus'}"/>
+                <f:select default="${instance.serverType}"/>
             </f:entry>
 
             <f:entry title="${%serverUrl}" field="serverUrl">
@@ -27,26 +24,9 @@
                 <table style="min-width: 50%; max-width: 100%; margin-left: 130px;">
                     <f:optionalBlock name="proxy" field="proxy" title="${%useProxy}"
                                      checked="${instance.proxy.proxyActive}">
-                        <f:entry title="${%proxyProtocol}" field="proxyProtocol">
-                            <select name="proxyProtocol">
-                                <j:choose>
-                                    <j:when test="${instance.proxy.proxyProtocol ne 'http'}">
-                                        <option value="https" selected="selected">HTTPS</option>
-                                    </j:when>
-                                    <j:otherwise>
-                                        <option value="https">HTTPS</option>
-                                    </j:otherwise>
-                                </j:choose>
 
-                                <j:choose>
-                                    <j:when test="${instance.proxy.proxyProtocol eq 'http'}">
-                                        <option value="http" selected="selected">HTTP</option>
-                                    </j:when>
-                                    <j:otherwise>
-                                        <option value="http">HTTP</option>
-                                    </j:otherwise>
-                                </j:choose>
-                            </select>
+                        <f:entry title="${%proxyProtocol}" field="proxyProtocol">
+                            <f:select default="${instance.proxyProtocol}"/>
                         </f:entry>
 
                         <f:entry title="${%proxyHost}" field="proxyHost">
@@ -84,18 +64,7 @@
         <f:section title="${%apiOptions}">
 
             <f:entry title="${%paramType}" field="paramType">
-                <div class="arpParamType">
-                    <f:radio name="paramType"
-                             value="path" title="${%paramTypePath}"
-                             checked="${instance.paramType eq 'path'}"
-                             onclick="showOptions(this)"/>
-                    <f:radio name="paramType" value="version" title="${%paramTypeVersion}"
-                             checked="${instance.paramType eq 'version'}"
-                             onclick="showOptions(this)"/>
-                    <f:radio name="paramType" value="repository" title="${%paramTypeRepo}"
-                             checked="${instance.paramType eq 'repository'}"
-                             onclick="showOptions(this)"/>
-                </div>
+                <f:select default="${instance.paramType}" onchange="showOptions(this)"/>
             </f:entry>
 
             <f:block>
@@ -105,7 +74,6 @@
                        value="${instance.paramType == 'version' ? 'block' : 'none'}"/>
                 <j:set var="displayRepoOption"
                        value="${instance.paramType == 'repository' ? 'block' : 'none'}"/>
-
 
                 <div class="arpApiOptionPath" style="display:${displayPathOption};">
                     <f:entry title="${%artifactName}" field="artifactName">
@@ -161,49 +129,8 @@
 
     <f:advanced title="${%displayOptions}">
         <f:section title="${%displayOptions}">
-
-            <f:entry title="${%displayStyle}" field="displayStyle">
-                <select name="displayStyle">
-                    <j:choose>
-                        <j:when test="${instance.displayStyle ne 'select'}">
-                            <option value="select" selected="selected">${%displayStyleSelect}
-                            </option>
-                        </j:when>
-                        <j:otherwise>
-                            <option value="select">${%displayStyleSelect}</option>
-                        </j:otherwise>
-                    </j:choose>
-
-                    <j:choose>
-                        <j:when test="${instance.displayStyle eq 'dropdown'}">
-                            <option value="dropdown" selected="selected">${%displayStyleDropdown}
-                            </option>
-                        </j:when>
-                        <j:otherwise>
-                            <option value="dropdown">${%displayStyleDropdown}</option>
-                        </j:otherwise>
-                    </j:choose>
-
-                    <j:choose>
-                        <j:when test="${instance.displayStyle eq 'checkbox'}">
-                            <option value="checkbox" selected="selected">${%displayStyleCheckbox}
-                            </option>
-                        </j:when>
-                        <j:otherwise>
-                            <option value="checkbox">${%displayStyleCheckbox}</option>
-                        </j:otherwise>
-                    </j:choose>
-
-                    <j:choose>
-                        <j:when test="${instance.displayStyle eq 'radio'}">
-                            <option value="radio" selected="selected">${%displayStyleRadio}
-                            </option>
-                        </j:when>
-                        <j:otherwise>
-                            <option value="radio">${%displayStyleRadio}</option>
-                        </j:otherwise>
-                    </j:choose>
-                </select>
+            <f:entry title="${%multiSelection}" field="multiSelection">
+                <f:checkbox default="false"/>
             </f:entry>
 
             <f:entry title="${%resultsCount}" field="resultsCount">
@@ -216,39 +143,18 @@
             </f:entry>
 
             <f:entry title="${%sortResults}" field="sortOrder">
-                <select name="sortOrder">
-                    <j:choose>
-                        <j:when test="${instance.sortOrder ne 'asc'}">
-                            <option value="asc" selected="selected">${%sortResultsAsc}</option>
-                        </j:when>
-                        <j:otherwise>
-                            <option value="asc">${%sortResultsAsc}</option>
-                        </j:otherwise>
-                    </j:choose>
-
-                    <j:choose>
-                        <j:when test="${instance.sortOrder eq 'desc'}">
-                            <option value="desc" selected="selected">${%sortResultsDesc}</option>
-                        </j:when>
-                        <j:otherwise>
-                            <option value="desc">${%sortResultsDesc}</option>
-                        </j:otherwise>
-                    </j:choose>
-                </select>
-            </f:entry>
-
-            <f:entry title="${%hideTextarea}" field="hideTextarea">
-                <f:checkbox default="false"/>
+                <f:select default="${instance.sortOrder}"/>
             </f:entry>
 
             <f:entry title="${%selectEntry}" field="selectEntry">
-                <select name="selectEntry">
-                    <option value="none">${%selectNone}</option>
-                    <option value="first">${%selectFirst}</option>
-                    <option value="last">${%selectLast}</option>
-                </select>
+                <f:select default="${instance.selectEntry}" onchange="toggleRegex(this)"/>
             </f:entry>
 
+            <div class="arpSelectRegex" style="display: ${instance.selectRegexStyle}">
+                <f:entry title="${%selectRegex}" field="selectRegex">
+                    <f:textbox/>
+                </f:entry>
+            </div>
         </f:section>
     </f:advanced>
 

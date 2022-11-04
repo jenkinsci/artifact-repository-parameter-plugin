@@ -4,7 +4,8 @@ import io.jenkins.plugins.artifactrepo.ArtifactRepoParamDefinition;
 import io.jenkins.plugins.artifactrepo.connectors.impl.Artifactory;
 import io.jenkins.plugins.artifactrepo.connectors.impl.Dummy;
 import io.jenkins.plugins.artifactrepo.connectors.impl.Nexus;
-import java.util.Map;
+import io.jenkins.plugins.artifactrepo.model.ResultEntry;
+import java.util.List;
 import javax.annotation.Nonnull;
 
 /** A connector interface for each artifact repository connector to implement. */
@@ -27,5 +28,5 @@ public interface Connector {
    * the API options into consideration but not any of the display options. No modifications are
    * done and the results are returned as provided by the target server.
    */
-  Map<String, String> getResults();
+  List<ResultEntry> getResults();
 }

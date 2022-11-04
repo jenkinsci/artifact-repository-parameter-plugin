@@ -6,10 +6,10 @@ import io.jenkins.plugins.artifactrepo.connectors.Connector;
 import io.jenkins.plugins.artifactrepo.helper.Constants.ParameterType;
 import io.jenkins.plugins.artifactrepo.helper.PluginHelper;
 import io.jenkins.plugins.artifactrepo.model.HttpResponse;
+import io.jenkins.plugins.artifactrepo.model.ResultEntry;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,7 +37,7 @@ public class Artifactory implements Connector {
   }
 
   @Override
-  public Map<String, String> getResults() {
+  public List<ResultEntry> getResults() {
     switch (definition.getParamType()) {
       case ParameterType.VERSION:
         return getVersionResult();
@@ -52,8 +52,8 @@ public class Artifactory implements Connector {
     }
   }
 
-  private Map<String, String> getArtifactResult() {
-    Map<String, String> result = new HashMap<>();
+  private List<ResultEntry> getArtifactResult() {
+    List<ResultEntry> result = new ArrayList<>();
 
     HttpResponse response = getArtifactsResponse();
     Validate.isTrue(
@@ -62,25 +62,24 @@ public class Artifactory implements Connector {
     JSONObject root = new JSONObject(response.getPayload());
     JSONArray array = root.getJSONArray("results");
     for (int i = 0; i < array.length(); i++) {
-      String key = array.getJSONObject(i).getString("uri");
-      String value = StringUtils.substringAfterLast(key, "/");
+      String value = array.getJSONObject(i).getString("uri");
+      String key = StringUtils.substringAfterLast(value, "/");
 
-      if (StringUtils.isNoneBlank(key, value)) {
-        result.put(StringUtils.remove(key, "api/storage/"), value);
+      if (StringUtils.isNoneBlank(value, key)) {
+        result.add(new ResultEntry(key, StringUtils.remove(value, "api/storage/")));
       }
     }
 
     return result;
   }
 
-  private Map<String, String> getVersionResult() {
-    Map<String, String> result = new HashMap<>();
+  private List<ResultEntry> getVersionResult() {
+    List<ResultEntry> result = new ArrayList<>();
 
     Pattern versionPattern = Pattern.compile(definition.getVersionRegex());
-    Map<String, String> artifacts = getArtifactResult();
-    for (Entry<String, String> entry : artifacts.entrySet()) {
-      Optional<String> version = extractVersion(entry.getKey(), versionPattern);
-      version.ifPresent(v -> result.put(entry.getKey(), v));
+    for (ResultEntry entry : getArtifactResult()) {
+      Optional<String> version = extractVersion(entry.getValue(), versionPattern);
+      version.ifPresent(v -> result.add(new ResultEntry(v, entry.getValue())));
     }
 
     return result;
@@ -104,8 +103,8 @@ public class Artifactory implements Connector {
     return Optional.empty();
   }
 
-  private Map<String, String> getRepositoryResult() {
-    Map<String, String> result = new HashMap<>();
+  private List<ResultEntry> getRepositoryResult() {
+    List<ResultEntry> result = new ArrayList<>();
 
     HttpResponse response = getRepositoriesResponse();
     Validate.isTrue(
@@ -120,10 +119,10 @@ public class Artifactory implements Connector {
         continue;
       }
 
-      String key = repo.getString("url");
-      String value = repo.getString("key");
-      if (StringUtils.isNoneBlank(key, value)) {
-        result.put(key, value);
+      String key = repo.getString("key");
+      String value = repo.getString("url");
+      if (StringUtils.isNoneBlank(value, key)) {
+        result.add(new ResultEntry(key, value));
       }
     }
 

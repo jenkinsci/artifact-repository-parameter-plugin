@@ -3,40 +3,32 @@
 
     <j:set var="escapeEntryTitleAndDescription" value="true"/>
 
-    <j:set var="arpResult" value="${it.result}"/>
-    <j:set var="selectNone" value="${it.selectEntry eq 'none'}"/>
-    <j:set var="selectFirst" value="${it.selectEntry eq 'first'}"/>
-    <j:set var="selectLast" value="${it.selectEntry eq 'last'}"/>
-    <j:set var="textareaInitialValue" scope="parent" defaultValue=""/>
-
     <f:entry title="${it.name}" description="${it.description}">
-        <j:choose>
-            <j:when test="${it.exceptionThrown}">
-                <div class="error">${%exceptionMsg}</div>
-            </j:when>
-            <j:when test="${arpResult.size() == 0}">
-                <div class="warning">${%zeroResultsMsg}</div>
-            </j:when>
-            <j:otherwise>
-                <div name="parameter">
+        <div name="parameter">
+            <j:choose>
+                <j:when test="${it.exceptionThrown}">
+                    <div class="error">${%exceptionMsg}</div>
+                </j:when>
+                <j:when test="${it.result.size() == 0}">
+                    <div class="warning">${%zeroResultsMsg}</div>
+                </j:when>
+                <j:otherwise>
                     <input type="hidden" name="name" value="${it.name}"/>
-
-                    <st:include page="index-${it.displayStyle}.jelly"/>
-
-                    <j:set var="textAreaCss"
-                           value="${it.hideTextarea ? 'display:none' :
-                         'color: #b0b0b0; border: 1px solid #bebebe;'}"/>
-
-                    <textarea name="value" rows="3" readonly="readonly" class="setting-input"
-                              style="${textAreaCss}">
-                        ${textareaInitialValue}
-                    </textarea>
-                </div>
-
-                <script src="${rootURL}/plugin/artifact-repository-parameter/js/index.js"
-                        type="text/javascript"/>
-            </j:otherwise>
-        </j:choose>
+                    <j:choose>
+                        <j:when test="${it.multiSelection}">
+                            <select name="value" size="5" multiple="multiple">
+                                <st:include page="index-select.jelly"/>
+                            </select>
+                        </j:when>
+                        <j:otherwise>
+                            <select name="value" size="5">
+                                <st:include page="index-select.jelly"/>
+                            </select>
+                        </j:otherwise>
+                    </j:choose>
+                </j:otherwise>
+            </j:choose>
+        </div>
     </f:entry>
 
 </j:jelly>
