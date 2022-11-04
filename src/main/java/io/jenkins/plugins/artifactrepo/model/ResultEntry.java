@@ -9,18 +9,18 @@ import lombok.Data;
 @AllArgsConstructor
 @Data
 public class ResultEntry {
-  private final String key;
-  private final String value;
-  private String submitValue = "";
-  private boolean selected = false;
+    private final String key;
+    private final String value;
+    private String submitValue = "";
+    private boolean selected = false;
 
-  public ResultEntry(@Nonnull String key, @Nonnull String value) {
-    this.key = key;
-    this.value = value;
-    this.submitValue = key + ";" + value;
-  }
+    public ResultEntry(@Nonnull String key, @Nonnull String value) {
+        this.key = key;
+        this.value = value;
+        this.submitValue = key + ";" + value;
+    }
 
-  public ResultEntry(@Nonnull Map.Entry<String, String> entry) {
-    this(entry.getKey(), entry.getValue());
-  }
+    public ResultEntry(@Nonnull Map.Entry<String, String> entry) {
+        this(entry.getKey(), entry.getValue());
+    }
 }

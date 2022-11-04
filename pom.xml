@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -16,25 +15,7 @@
     <version>1.1.0-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>Artifact Repository Parameter Plugin</name>
-    <description>
-        Display information from an artifact repository as Jenkins build parameters.
-    </description>
-    <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
-
-    <licenses>
-        <license>
-            <name>The MIT license</name>
-            <url>https://opensource.org/licenses/MIT</url>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <id>fkh</id>
-            <name>Frieder Heugel</name>
-            <email>{first name} [dot] {last name} [at] gmail [dot] com</email>
-        </developer>
-    </developers>
+    <description>Display information from an artifact repository as Jenkins build parameters.</description>
 
     <properties>
         <encoding>UTF-8</encoding>
@@ -45,84 +26,18 @@
         <!-- Jenkins specific properties -->
         <jenkins.version>2.361.2</jenkins.version>
         <java.level>11</java.level>
-        <!-- Google code style guide -->
-        <google.java.format>1.15.0</google.java.format>
+        <!-- Palantir code style guide -->
+        <palantir.java.format>2.27.0</palantir.java.format>
     </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.10.1</version>
-                    <configuration>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
-                        <release>${java.version}</release>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.1.0</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                    <banDuplicatePomDependencyVersions/>
-                                    <requireJavaVersion>
-                                        <version>${java.version}</version>
-                                    </requireJavaVersion>
-                                    <requireMavenVersion>
-                                        <version>${maven.version}</version>
-                                    </requireMavenVersion>
-                                </rules>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>com.diffplug.spotless</groupId>
-                    <artifactId>spotless-maven-plugin</artifactId>
-                    <version>2.27.1</version>
-                    <configuration>
-                        <java>
-                            <googleJavaFormat>
-                                <version>${google.java.format}</version>
-                                <style>GOOGLE</style>
-                                <reflowLongStrings>true</reflowLongStrings>
-                            </googleJavaFormat>
-                            <endWithNewline/>
-                            <formatAnnotations />
-                            <removeUnusedImports/>
-                            <trimTrailingWhitespace/>
-                        </java>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
 
     <dependencies>
         <!-- 3rd party jenkins plugins this plugin depends on -->
+
+        <dependency>
+            <groupId>io.jenkins.plugins</groupId>
+            <artifactId>commons-lang3-api</artifactId>
+            <version>3.12.0.0</version>
+        </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>apache-httpcomponents-client-4-api</artifactId>
@@ -133,12 +48,9 @@
             <artifactId>credentials</artifactId>
             <version>2.6.1.1</version>
         </dependency>
-        <dependency>
-            <groupId>io.jenkins.plugins</groupId>
-            <artifactId>commons-lang3-api</artifactId>
-            <version>3.12.0.0</version>
-        </dependency>
+
         <!-- 3rd party libraries this plugin depends on -->
+
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
@@ -150,7 +62,15 @@
             <version>1.18.24</version>
             <scope>compile</scope>
         </dependency>
+
         <!-- 3rd party plugins to be installed to local jenkins for testing, scope must be 'test' -->
+
+        <dependency>
+            <groupId>org.jenkins-ci</groupId>
+            <artifactId>symbol-annotation</artifactId>
+            <version>1.23</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>pipeline-stage-step</artifactId>
@@ -161,12 +81,6 @@
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>structs</artifactId>
             <version>308.v852b473a2b8c</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci</groupId>
-            <artifactId>symbol-annotation</artifactId>
-            <version>1.23</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -219,6 +133,122 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.diffplug.spotless</groupId>
+                    <artifactId>spotless-maven-plugin</artifactId>
+                    <version>2.27.2</version>
+                    <configuration>
+                        <java>
+                            <palantirJavaFormat>
+                                <version>${palantir.java.format}</version>
+                            </palantirJavaFormat>
+                            <endWithNewline/>
+                            <formatAnnotations/>
+                            <removeUnusedImports/>
+                            <toggleOffOn/>
+                            <trimTrailingWhitespace/>
+                        </java>
+                        <pom>
+                            <includes>
+                                <include>pom.xml</include>
+                            </includes>
+                            <sortPom>
+                                <expandEmptyElements>false</expandEmptyElements>
+                                <indentSchemaLocation>true</indentSchemaLocation>
+                                <nrOfIndentSpace>4</nrOfIndentSpace>
+                                <predefinedSortOrder>custom_1</predefinedSortOrder>
+                                <sortDependencies>scope,groupId,artifactId</sortDependencies>
+                                <sortExecutions>true</sortExecutions>
+                                <sortPlugins>scope,groupId,artifactId</sortPlugins>
+                            </sortPom>
+                        </pom>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>apply</goal>
+                            </goals>
+                            <phase>validate</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.10.1</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <release>${java.version}</release>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.1.0</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <banDuplicatePomDependencyVersions/>
+                                    <requireJavaVersion>
+                                        <version>${java.version}</version>
+                                    </requireJavaVersion>
+                                    <requireMavenVersion>
+                                        <version>${maven.version}</version>
+                                    </requireMavenVersion>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+    <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+
+    <licenses>
+        <license>
+            <name>The MIT license</name>
+            <url>https://opensource.org/licenses/MIT</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>fkh</id>
+            <name>Frieder Heugel</name>
+            <email>{first name} [dot] {last name} [at] gmail [dot] com</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:git://github.com/${gitOrga}/${project.artifactId}-plugin.git</connection>
+        <developerConnection>scm:git:git@github.com:${gitOrga}/${project.artifactId}-plugin.git</developerConnection>
+        <url>https://github.com/${gitOrga}/${project.artifactId}-plugin</url>
+        <tag>${scmTag}</tag>
+    </scm>
+
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
@@ -232,14 +262,5 @@
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
-
-    <scm>
-        <connection>scm:git:git://github.com/${gitOrga}/${project.artifactId}-plugin.git</connection>
-        <developerConnection>
-            scm:git:git@github.com:${gitOrga}/${project.artifactId}-plugin.git
-        </developerConnection>
-        <url>https://github.com/${gitOrga}/${project.artifactId}-plugin</url>
-        <tag>${scmTag}</tag>
-    </scm>
 
 </project>
