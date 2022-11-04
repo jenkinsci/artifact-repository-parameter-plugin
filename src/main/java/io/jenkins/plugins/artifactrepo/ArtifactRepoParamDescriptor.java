@@ -220,8 +220,8 @@ public class ArtifactRepoParamDescriptor extends ParameterDescriptor {
 
   public ListBoxModel doFillSortOrderItems() {
     ListBoxModel model = new ListBoxModel();
-    model.add(Messages.selection_sort_asc(), "Asc");
-    model.add(Messages.selection_sort_desc(), "Desc");
+    model.add(Messages.selection_sort_asc(), "asc");
+    model.add(Messages.selection_sort_desc(), "desc");
     return model;
   }
 
