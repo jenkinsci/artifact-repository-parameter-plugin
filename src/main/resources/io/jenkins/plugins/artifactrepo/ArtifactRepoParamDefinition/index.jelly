@@ -2,7 +2,6 @@
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:st="jelly:stapler">
 
     <j:set var="escapeEntryTitleAndDescription" value="true"/>
-    <j:set var="arpResult" value="${it.result}"/>
 
     <f:entry title="${it.name}" description="${it.description}">
         <div name="parameter">
@@ -10,12 +9,23 @@
                 <j:when test="${it.exceptionThrown}">
                     <div class="error">${%exceptionMsg}</div>
                 </j:when>
-                <j:when test="${arpResult.size() == 0}">
+                <j:when test="${it.result.size() == 0}">
                     <div class="warning">${%zeroResultsMsg}</div>
                 </j:when>
                 <j:otherwise>
                     <input type="hidden" name="name" value="${it.name}"/>
-                    <st:include page="index-${it.displayStyle}.jelly"/>
+                    <j:choose>
+                        <j:when test="${it.multiSelection}">
+                            <select name="value" size="5" multiple="multiple">
+                                <st:include page="index-select.jelly"/>
+                            </select>
+                        </j:when>
+                        <j:otherwise>
+                            <select name="value" size="5">
+                                <st:include page="index-select.jelly"/>
+                            </select>
+                        </j:otherwise>
+                    </j:choose>
                 </j:otherwise>
             </j:choose>
         </div>

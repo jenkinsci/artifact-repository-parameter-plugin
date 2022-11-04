@@ -13,12 +13,13 @@ import io.jenkins.plugins.artifactrepo.connectors.Connector;
 import io.jenkins.plugins.artifactrepo.connectors.impl.Artifactory;
 import io.jenkins.plugins.artifactrepo.helper.Constants;
 import io.jenkins.plugins.artifactrepo.model.ArtifactRepoParamProxy;
+import io.jenkins.plugins.artifactrepo.model.ResultEntry;
 import java.net.URI;
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import javax.annotation.Nonnull;
 import jenkins.model.Jenkins;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.QueryParameter;
@@ -150,8 +151,8 @@ public class ArtifactRepoParamDescriptor extends ParameterDescriptor {
         new ArtifactRepoParamDefinition(
             serverType, serverUrl, credentialsId, ignoreCertificate, proxy);
 
-    Map<String, String> result = Connector.getInstance(dummyDefinition).getResults();
-    if (MapUtils.isNotEmpty(result)) {
+    List<ResultEntry> result = Connector.getInstance(dummyDefinition).getResults();
+    if (CollectionUtils.isNotEmpty(result)) {
       return FormValidation.okWithMarkup(
           "<span style='color:green'>" + Messages.formError_successfulConnection() + "</span>");
     } else {
@@ -190,5 +191,46 @@ public class ArtifactRepoParamDescriptor extends ParameterDescriptor {
             Collections.emptyList(),
             CredentialsMatchers.always())
         .includeCurrentValue(credentialsId);
+  }
+
+  // fill select boxes (static entries)
+  public ListBoxModel doFillServerTypeItems() {
+    ListBoxModel model = new ListBoxModel();
+    model.add(Messages.selection_pleaseSelect(), "");
+    model.add(Messages.selection_serverType_artifactory(), "artifactory");
+    model.add(Messages.selection_serverType_nexus(), "nexus");
+    return model;
+  }
+
+  public ListBoxModel doFillProxyProtocolItems() {
+    ListBoxModel model = new ListBoxModel();
+    model.add(Messages.selection_proxyProtocol_https(), "https");
+    model.add(Messages.selection_proxyProtocol_http(), "http");
+    return model;
+  }
+
+  public ListBoxModel doFillParamTypeItems() {
+    ListBoxModel model = new ListBoxModel();
+    model.add(Messages.selection_pleaseSelect(), "");
+    model.add(Messages.selection_paramType_path(), "path");
+    model.add(Messages.selection_paramType_version(), "version");
+    model.add(Messages.selection_paramType_repo(), "repository");
+    return model;
+  }
+
+  public ListBoxModel doFillSortOrderItems() {
+    ListBoxModel model = new ListBoxModel();
+    model.add(Messages.selection_sort_asc(), "asc");
+    model.add(Messages.selection_sort_desc(), "desc");
+    return model;
+  }
+
+  public ListBoxModel doFillSelectEntryItems() {
+    ListBoxModel model = new ListBoxModel();
+    model.add(Messages.selection_selectEntry_none(), "none");
+    model.add(Messages.selection_selectEntry_first(), "first");
+    model.add(Messages.selection_selectEntry_last(), "last");
+    model.add(Messages.selection_selectEntry_regex(), "regex");
+    return model;
   }
 }

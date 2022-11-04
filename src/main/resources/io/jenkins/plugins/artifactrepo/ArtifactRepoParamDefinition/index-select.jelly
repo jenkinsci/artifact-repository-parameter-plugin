@@ -1,21 +1,19 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
 
-    <select name="value" size="10" multiple="true">
-        <j:forEach items="${arpResult}" var="item" varStatus="loop">
-            <j:choose>
-                <j:when test="${item.value.selected == true}">
-                    <option value="${item.value.value};${item.value.key}" selected="selected">
-                        ${item.value.value}
-                    </option>
-                </j:when>
-                <j:otherwise>
-                    <option value="${item.value.value};${item.value.key}">
-                        ${item.value.value}
-                    </option>
-                </j:otherwise>
-            </j:choose>
-        </j:forEach>
-    </select>
+    <j:forEach items="${it.result}" var="item" varStatus="loop">
+        <j:choose>
+            <j:when test="${item.value.selected == true}">
+                <option value="${item.value.key};${item.value.value}" selected="selected">
+                    ${item.value.key}
+                </option>
+            </j:when>
+            <j:otherwise>
+                <option value="${item.value.key};${item.value.value}">
+                    ${item.value.key}
+                </option>
+            </j:otherwise>
+        </j:choose>
+    </j:forEach>
 
 </j:jelly>

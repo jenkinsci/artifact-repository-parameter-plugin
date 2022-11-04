@@ -7,12 +7,9 @@ import io.jenkins.plugins.artifactrepo.connectors.Connector;
 import io.jenkins.plugins.artifactrepo.helper.Constants.ParameterType;
 import io.jenkins.plugins.artifactrepo.helper.PluginHelper;
 import io.jenkins.plugins.artifactrepo.model.HttpResponse;
+import io.jenkins.plugins.artifactrepo.model.ResultEntry;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -48,7 +45,7 @@ public class Nexus implements Connector {
   }
 
   @Override
-  public Map<String, String> getResults() {
+  public List<ResultEntry> getResults() {
     switch (definition.getParamType()) {
       case ParameterType.PATH:
         return getArtifactResult();
@@ -62,30 +59,29 @@ public class Nexus implements Connector {
     }
   }
 
-  private Map<String, String> getArtifactResult() {
+  private List<ResultEntry> getArtifactResult() {
     HttpResponse response = getArtifactsResponse(null);
     if (response.getRc() == HttpStatus.SC_OK) {
-      return new HashMap<>(parseArtifactsPayload(response.getPayload()));
+      return parseArtifactsPayload(response.getPayload());
     }
 
     throw new IllegalArgumentException("HTTP response code is invalid: " + response.getRc());
   }
 
-  private Map<String, String> getVersionResult() {
-    Map<String, String> result = new HashMap<>();
+  private List<ResultEntry> getVersionResult() {
+    List<ResultEntry> result = new ArrayList<>();
 
     Pattern versionPattern = Pattern.compile(definition.getVersionRegex());
-    Map<String, String> artifacts = getArtifactResult();
-    for (Entry<String, String> entry : artifacts.entrySet()) {
-      Optional<String> version = extractVersion(entry.getKey(), versionPattern);
-      version.ifPresent(v -> result.put(entry.getKey(), v));
+    for (ResultEntry entry : getArtifactResult()) {
+      Optional<String> version = extractVersion(entry.getValue(), versionPattern);
+      version.ifPresent(v -> result.add(new ResultEntry(v, entry.getValue())));
     }
 
     return result;
   }
 
-  private Map<String, String> getRepositoryResult() {
-    Map<String, String> result = new HashMap<>();
+  private List<ResultEntry> getRepositoryResult() {
+    List<ResultEntry> result = new ArrayList<>();
 
     HttpResponse response = getRepositoriesResponse();
 
@@ -100,10 +96,10 @@ public class Nexus implements Connector {
         continue;
       }
 
-      String key = repo.getString("url");
-      String value = repo.getString("name");
-      if (StringUtils.isNoneBlank(key, value)) {
-        result.put(key, value);
+      String key = repo.getString("name");
+      String value = repo.getString("url");
+      if (StringUtils.isNoneBlank(value, key)) {
+        result.add(new ResultEntry(key, value));
       }
     }
 
@@ -130,8 +126,8 @@ public class Nexus implements Connector {
         getPreemptiveAuthContext());
   }
 
-  private Map<String, String> parseArtifactsPayload(@Nonnull String jsonPayload) {
-    Map<String, String> result = new HashMap<>();
+  private List<ResultEntry> parseArtifactsPayload(@Nonnull String jsonPayload) {
+    List<ResultEntry> result = new ArrayList<>();
 
     JSONObject root = new JSONObject(jsonPayload);
 
@@ -143,7 +139,8 @@ public class Nexus implements Connector {
         HttpResponse response = getArtifactsResponse(token);
         Validate.isTrue(
             response.getRc() == HttpStatus.SC_OK, Messages.log_failedRequest(response.getRc()));
-        result.putAll(parseArtifactsPayload(response.getPayload()));
+
+        result.addAll(parseArtifactsPayload(response.getPayload()));
       }
     }
 
@@ -154,11 +151,11 @@ public class Nexus implements Connector {
       JSONArray assets = artifact.getJSONArray("assets");
       for (int j = 0; j < assets.length(); j++) {
         JSONObject asset = assets.getJSONObject(j);
-        String key = asset.getString("downloadUrl");
-        String value = StringUtils.substringAfterLast(key, "/");
+        String value = asset.getString("downloadUrl");
+        String key = StringUtils.substringAfterLast(value, "/");
 
-        if (StringUtils.isNoneBlank(key, value) && !StringUtils.endsWithAny(value, "md5", "sha1")) {
-          result.put(key, value);
+        if (StringUtils.isNoneBlank(value, key) && !StringUtils.endsWithAny(key, "md5", "sha1")) {
+          result.add(new ResultEntry(key, value));
         }
       }
     }

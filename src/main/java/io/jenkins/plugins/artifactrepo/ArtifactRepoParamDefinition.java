@@ -1,6 +1,5 @@
 package io.jenkins.plugins.artifactrepo;
 
-import static io.jenkins.plugins.artifactrepo.helper.Constants.ParameterValue.VALUE_PREFIX;
 import static java.util.function.Predicate.not;
 
 import hudson.Extension;
@@ -9,32 +8,31 @@ import hudson.model.ParameterValue;
 import io.jenkins.plugins.artifactrepo.connectors.Connector;
 import io.jenkins.plugins.artifactrepo.helper.AlphanumComparator;
 import io.jenkins.plugins.artifactrepo.helper.Constants.ParameterType;
-import io.jenkins.plugins.artifactrepo.helper.ParameterValueHelper;
 import io.jenkins.plugins.artifactrepo.model.ArtifactRepoParamProxy;
 import io.jenkins.plugins.artifactrepo.model.FormatType;
 import io.jenkins.plugins.artifactrepo.model.RepoType;
 import io.jenkins.plugins.artifactrepo.model.ResultEntry;
 import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import lombok.Getter;
 import lombok.extern.java.Log;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
 @Log
 @Getter
 public class ArtifactRepoParamDefinition extends ParameterDefinition {
-
+  private static final long serialVersionUID = 1873814008801492085L;
+  private static final AlphanumComparator comparator = new AlphanumComparator();
   // properties from config.jelly
-  private final String checkboxPrefix = VALUE_PREFIX;
   // connection options
   private final String serverType;
   private final String serverUrl;
@@ -49,89 +47,15 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
   private final RepoType repoType;
   private final FormatType formatType;
   // display options
-  private final String displayStyle;
+  private final boolean multiSelection;
   private final int resultsCount;
   private final String filterRegex;
   private final String sortOrder;
   private final String selectEntry;
   private final String selectRegex;
-
+  private final String selectRegexStyle;
   private boolean exceptionThrown = false;
-
-  /** Request data from the target instance to display as build parameter. */
-  public TreeMap<String, ResultEntry> getResult() {
-    exceptionThrown = false;
-    Map<String, String> entries = new HashMap<>();
-    try {
-      entries = Connector.getInstance(this).getResults();
-    } catch (Exception e) {
-      exceptionThrown = true;
-      log.log(Level.SEVERE, "An exception occurred while trying to get a result set", e);
-    }
-
-    TreeMap<String, ResultEntry> result =
-        entries.entrySet().stream()
-            .filter(distinctByValue(Entry::getValue))
-            .filter(entry -> entry.getValue().matches(filterRegex))
-            .sorted(getComparator())
-            .limit(resultsCount)
-            .map(entry -> new ResultEntry(entry.getKey(), entry.getValue()))
-            .collect(
-                Collectors.toMap(
-                    ResultEntry::getKey, Function.identity(), (o, n) -> n, TreeMap::new));
-
-    return markPreselectedEntries(result);
-  }
-
-  /** Distinct result map by value */
-  private static <T> Predicate<T> distinctByValue(Function<? super T, ?> func) {
-    Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-    return t -> seen.putIfAbsent(func.apply(t), Boolean.TRUE) == null;
-  }
-
-  /** Sort result map by value */
-  private Comparator<Map.Entry<String, String>> getComparator() {
-    Comparator<Entry<String, String>> comparator =
-        Map.Entry.comparingByValue(new AlphanumComparator());
-
-    if ("desc".equals(sortOrder)) {
-      comparator = comparator.reversed();
-    }
-    return comparator;
-  }
-
-  /** Check if some entries must get pre-selected. */
-  private TreeMap<String, ResultEntry> markPreselectedEntries(
-      TreeMap<String, ResultEntry> entries) {
-    if (entries.isEmpty()) {
-      return entries;
-    }
-
-    switch (selectEntry) {
-      case "first":
-        entries.firstEntry().getValue().setSelected(true);
-        break;
-      case "last":
-        entries.lastEntry().getValue().setSelected(true);
-        break;
-      case "regex":
-        AtomicBoolean stopAction = new AtomicBoolean(false);
-        entries.values().stream()
-            .filter(not(e -> stopAction.get()))
-            .filter(e -> e.getKey().matches(selectRegex))
-            .forEach(
-                entry -> {
-                  if (List.of("dropdown", "radio").contains(displayStyle)) {
-                    stopAction.set(true);
-                  }
-                  entry.setSelected(true);
-                });
-        break;
-      default:
-    }
-
-    return entries;
-  }
+  private transient Map<String, ResultEntry> result;
 
   /** Constructor is used during connection validation test. */
   ArtifactRepoParamDefinition(
@@ -154,7 +78,7 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
         null,
         RepoType.testValue(),
         FormatType.testValue(),
-        null,
+        false,
         null,
         null,
         null,
@@ -177,7 +101,7 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
       String versionRegex,
       String[] repoType,
       String[] formatType,
-      String displayStyle,
+      boolean multiSelection,
       String resultsCount,
       String filterRegex,
       String sortOrder,
@@ -201,7 +125,7 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
     this.repoType = new RepoType(repoType);
     this.formatType = new FormatType(formatType);
     // display options
-    this.displayStyle = Optional.ofNullable(displayStyle).map(String::trim).orElse("");
+    this.multiSelection = multiSelection;
     this.resultsCount =
         Optional.ofNullable(resultsCount)
             .filter(s -> s.matches("\\d+"))
@@ -214,22 +138,125 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
             .orElse(".+");
     this.sortOrder = Optional.ofNullable(sortOrder).map(String::trim).orElse("");
     this.selectEntry = Optional.ofNullable(selectEntry).map(String::trim).orElse("none");
+    this.selectRegexStyle = "regex".equals(this.selectEntry) ? "block" : "none";
     this.selectRegex = Optional.ofNullable(selectRegex).map(String::trim).orElse("");
   }
 
-  // needed since reflection and Lombok getter generation do not work well together
+  /** Request data from the target instance to display as build parameter. */
+  public Map<String, ResultEntry> getResult() {
+    if (MapUtils.isNotEmpty(result)) {
+      return result;
+    }
+
+    exceptionThrown = false;
+    List<ResultEntry> repoEntries;
+    try {
+      repoEntries = Connector.getInstance(this).getResults();
+    } catch (Exception e) {
+      exceptionThrown = true;
+      log.log(Level.SEVERE, "An exception occurred while trying to get a result set", e);
+      return new HashMap<>();
+    }
+
+    Map<String, ResultEntry> resultEntries = new LinkedHashMap<>();
+    repoEntries.stream()
+        .filter(this::filterRegex)
+        .sorted(this::sortResult)
+        .limit(resultsCount)
+        .forEach(entry -> resultEntries.put(entry.getKey(), entry));
+    result = markPreselectedEntries(resultEntries);
+    return result;
+  }
+
+  private boolean filterRegex(@Nonnull ResultEntry entry) {
+    if (StringUtils.isBlank(filterRegex)) {
+      return true;
+    }
+
+    return entry.getKey().matches(filterRegex) || entry.getValue().matches(filterRegex);
+  }
+
+  private int sortResult(@Nonnull ResultEntry entry1, @Nonnull ResultEntry entry2) {
+    if ("desc".equals(sortOrder)) {
+      return comparator.compare(entry2.getKey(), entry1.getKey());
+    } else {
+      return comparator.compare(entry1.getKey(), entry2.getKey());
+    }
+  }
+
+  private Map<String, ResultEntry> markPreselectedEntries(Map<String, ResultEntry> entries) {
+    if (entries.isEmpty()) {
+      return entries;
+    }
+
+    switch (selectEntry) {
+      case "first":
+        entries.entrySet().stream().findFirst().ifPresent(e -> e.getValue().setSelected(true));
+        break;
+      case "last":
+        entries.entrySet().stream()
+            .reduce((first, second) -> second)
+            .ifPresent(e -> e.getValue().setSelected(true));
+        break;
+      case "regex":
+        AtomicBoolean stopAction = new AtomicBoolean(false);
+        entries.entrySet().stream()
+            .filter(not(e -> stopAction.get()))
+            .filter(this::selectedRegex)
+            .forEach(
+                entry -> {
+                  if (!multiSelection) {
+                    stopAction.set(true);
+                  }
+                  entry.getValue().setSelected(true);
+                });
+        break;
+      default:
+    }
+
+    return entries;
+  }
+
+  private boolean selectedRegex(@Nonnull Map.Entry<String, ResultEntry> entry) {
+    if (StringUtils.isBlank(selectRegex)) {
+      return false;
+    }
+
+    return entry.getValue().getKey().matches(selectRegex)
+        || entry.getValue().getValue().matches(selectRegex);
+  }
+
+  // needed since reflection and Lombok getter generation do not seem to work well together
   public String getProxyCredentialsId() {
     return proxy.getProxyCredentialsId();
   }
 
   @Override
   public ParameterValue createValue(StaplerRequest request, JSONObject json) {
-    return ParameterValueHelper.createValue(request, json);
+    String name = json.getString("name");
+    Validate.notBlank(name, "No name of the parameter was provided");
+
+    String value = getValuesFromJson(json);
+
+    return new ArtifactRepoParameterValue(name, value);
   }
 
   @Override
   public ParameterValue createValue(StaplerRequest request) {
-    return ParameterValueHelper.createValue(request);
+    throw new UnsupportedOperationException("Currently not implemented");
+  }
+
+  private String getValuesFromJson(JSONObject json) {
+    Object jsonValue = json.get("value");
+
+    if (jsonValue instanceof String) {
+      return (String) jsonValue;
+    } else if (jsonValue instanceof JSONArray) {
+      return ((JSONArray) jsonValue)
+          .stream().map(Object::toString).collect(Collectors.joining("\n"));
+    }
+
+    return null;
   }
 
   @Extension
