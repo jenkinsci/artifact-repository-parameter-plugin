@@ -220,8 +220,8 @@ public class ArtifactRepoParamDescriptor extends ParameterDescriptor {
 
   public ListBoxModel doFillSortOrderItems() {
     ListBoxModel model = new ListBoxModel();
-    model.add(Messages.selection_sort_asc(), "asc");
-    model.add(Messages.selection_sort_desc(), "desc");
+    model.add(Messages.selection_sort_asc(), "Asc");
+    model.add(Messages.selection_sort_desc(), "Desc");
     return model;
   }
 
@@ -231,6 +231,14 @@ public class ArtifactRepoParamDescriptor extends ParameterDescriptor {
     model.add(Messages.selection_selectEntry_first(), "first");
     model.add(Messages.selection_selectEntry_last(), "last");
     model.add(Messages.selection_selectEntry_regex(), "regex");
+    return model;
+  }
+
+  public ListBoxModel doFillSubmitValueItems() {
+    ListBoxModel model = new ListBoxModel();
+    model.add(Messages.selection_submitValue_both(), "both");
+    model.add(Messages.selection_submitValue_label(), "label");
+    model.add(Messages.selection_submitValue_path(), "path");
     return model;
   }
 }

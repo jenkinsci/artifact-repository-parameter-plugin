@@ -4,12 +4,12 @@
     <j:forEach items="${it.result}" var="item" varStatus="loop">
         <j:choose>
             <j:when test="${item.value.selected == true}">
-                <option value="${item.value.key};${item.value.value}" selected="selected">
+                <option value="${item.value.submitValue}" selected="selected">
                     ${item.value.key}
                 </option>
             </j:when>
             <j:otherwise>
-                <option value="${item.value.key};${item.value.value}">
+                <option value="${item.value.submitValue}">
                     ${item.value.key}
                 </option>
             </j:otherwise>
