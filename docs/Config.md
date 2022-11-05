@@ -2,28 +2,29 @@
 
 Following is an overview how to configure and use the plugin.
 
-> For an example of a declarative pipeline that configures the plugin take a look at 
-> `Jenkinsfile.declarative.sample`.
-
 ## Add plugin as build parameter
 
-As a first step that plugin must be added as a parameter to the build. This can easily be done
+As a first step the plugin must be added as a parameter to the build. This can easily be done
 in the configuration view. Make sure the checkbox `This project is parameterized` is checked
 and select the `Artifact Repository Parameter` entry. 
 
 ![](img/param_select.png)
 
+The plugin comes with different options to configure. 
+
 ## Connection Options
 
 The next step is to configure the connection to the artifact repository. For this define the
-type of the target repository along with the URL and access credentials. The plugin currently
-only supports credentials of type `Username with password`. Currently no support of
-access tokens is planned. Pull requests are welcome though. The connection to the server can
-then be verified via the `Test Connection` button.
+type of the target repository along with the URL and access credentials. The plugin only supports 
+credentials of type `Username with password`. There is currently no support of access tokens 
+planned. Pull requests are welcome though. The connection to the server can then be verified 
+via the `Test Connection` button.
 
 > The connection test is done against the repository endpoint by requesting all available
 > repositories and then checking that at least one entry is returned. This check is
-> independent from what is configured later on in the API options.
+> independent of what is configured later on in the API options. It's just a check to see
+> if a) the connection information is correct and b) the connection user has enough
+> permissions to access at least one of the existing repositories.
 
 ![](img/connection_options.png)
  
@@ -35,24 +36,22 @@ locations where such an HTTP proxy can be configured.
 2. The other option is to set the proxy in the `Advanced` tab of the `plugin manager`.
 
 > Please note that when no local proxy is set but a global one is the plugin  will always 
-> fall back to the global proxy. There is currently no option to ignore the global proxy 
-> if set. Also there is currently no support for ignore hosts in the context of the proxy
-> setting. Pull requests are welcome though.
+> fall back to the global proxy.
 
 The last option available is to ignore invalid certificates. This might be useful in local 
-environments with self-signed certs or for testing purposes. Use with caution in production
-and live environments.
+environments with self-signed certs or for testing purposes. _Use with caution in production
+and live environments!_
 
 ## API Options
 
 This section lets one choose from different available endpoints. Depending on the endpoint 
-different options are available.
+different configuration options are available.
 
 > When requesting information from the target server the endpoints will always return results
-> based on the permission of the user defined in the connection section. Make sure the technical
-> user has sufficient permissions to access the requested information.
+> based on the permission of the user defined to open the connection to the server. Make sure 
+> this user has sufficient permissions to access the requested information.
 
-### Path
+### Artifact Path
 
 When selecting the `Artifact Path` option the plugin will show the available artifacts along
 with their path. To identify the artifact it is possible to define the artifact name and an
@@ -61,38 +60,42 @@ artifact name. For more details please refer to the REST API of the respective r
 
 ![](img/api_options_path.png)
 
-> Artifactory allows to define multiple repositories while Nexus only allows to define a single
-> repository. To harmonize the UI the plugin limits the possibility to specify a repository to one.
+> The option to use a simple wildcard may not always be sufficient. For a more powerful regex
+> based filter option please check the `Display Options` section below.
 
-### Version
+> Artifactory allows to define multiple repositories while Nexus only allows to define a single
+> repository. To harmonize the UI the plugin limits the possibility to specify a repository to one
+> repository only.
+
+### Artifact Version
 
 The option `Artifact Version` allows to display the version of an artifact. Technically it is based
-on the path option but provides the possibility to define a `Version Regex` used to extract the
-artifact's version from its path. This regex is using [Capturing Groups][link0]  to identify the 
-version based on the artifact's full path. An example regex to get the version of Maven-based 
-artifacts is as follows:
+on the results of the previously mentioned path option and provides the possibility to define a 
+regex to extract the artifact's version from its path. This regex is using Java [Capturing Groups][link0]  
+to identify the version based on the artifact's full path. An example regex to get the version of Maven-based 
+artifacts with a default version scheme (`Major.Minor.Path-Identifier.Extension`) is as follows:
 
 ```
-.+/(\d+\.\d+(\.\d+(-SNAPSHOT)?)?)/.+
+.+/(\d+\.\d+(\.\d+((-CANDIDATE)?-SNAPSHOT)?)?)/.+
 ```
-
-> Artifactory provides a dedicated endpoint for versions however this endpoint is only available in
-> the commercial version. Both Artifactory OSS and Nexus OSS do not have an endpoint for the artifact's
-> version. Hence this approach was chosen to provide some basic way of retrieving a version.
 
 ![](img/api_options_version.png)
 
+> Artifactory provides a dedicated endpoint for versions however this endpoint is only available in
+> the commercial version. Both Artifactory OSS and Nexus OSS do not have a dedicated endpoint for the 
+> artifact's version. Hence, this approach was chosen to provide some generic way of retrieving a version.
+
 ### Repository
 
-The last option available is `Repository` and provides the ability to display repositories available
-on the target servers. To allow for more specific results one can define the repository and format
+The last option available is `Repository` and provides the ability to display repositories and their 
+path on the target servers. To allow for more specific results one can define the repository and format
 type. For the latter a generic option `Other` exists that matches anything not listed as a dedicated
 option.
 
 ![](img/api_options_repository.png)
 
 > Please note that this option shows a static list of repository format types that may not be available
-> in Artifactory OSS. In this case the selection will have no effect and be ignored.
+> in either Artifactory OSS or Nexus OSS. In this case the selection will have no effect and be ignored.
 
 ## Display Options
 
@@ -100,43 +103,51 @@ This section allows to customize the look of the parameters in the  `Build with 
 
 ![](img/display_options.png)
 
-`Display Style` allows to customize how entries are displayed. Following is a screenshot of all 
-possible representations of the same plugin.
-
-![](img/display_styles.png)
+The checkbox `Multiple Entries Selectable` lets one choose whether one or multiple entries can be selected.
 
 The `Results Count` allows to limit the number of results displayed in the UI.
 
-The `Filter Regex` is another possibility to filter the result list before displaying the entries
+The `Filter Regex` option is a possibility to filter the result list before displaying the entries
 to the end user. This option was implemented due to the fact that the filter options available in 
 the REST APIs of the artifact repositories are quite basic and do not allow for more complex 
-filters. Any entry to be displayed must match the regex. Hence a default value `.+` is used to
-display all entries out of the box. If the configuration field is left empty an implicit `.+` is used.
+filters. Any entry to be displayed must match the regex. If no regex is defined the option is ignored.
 
-`Sort Results` simply sorts the results alphabetically based on the selected order.
+`Sort Results` simply sorts the results alphanumerical based on the selected order. It makes use of
+the Alphanum sorting algorithm by Dave Koelle.
 
-`Hide Textarea` allows to hide the textarea displayed below the selection options. Check the explanation
-in the build view section below for more information about this feature.
+`Select Entry` allows to define whether an entry should get pre-selected when opening the
+`Build with Parameters` view. It supports the option to pre-select either the first or the last entry
+or any entry that matches a given regex.
 
-`Select Entry` allows to define whether or not an entry should get pre-selected when opening the
-`Build with Parameters` view. Currently the selection of the first and the last entry are supported.
+The last option `Submit Value` allows to define what information will be sent to the build pipeline.
+By default (option `Label + Path`), the plugin shows a human-readable label in the select box but sends 
+a different value to the pipeline. This value consists of the label but also contains the full path of 
+the artifact/repository identified by the visible label. With the option `Label Only` the same value
+that is visible on the website gets send to the pipeline. With the option `Path Only` a non-visible
+full path of the entry gets send to the pipeline.
 
 ## Build View
 
-When starting a build with parameters one can see the available options and a textarea below (if not
-hidden in the config). The available options are displayed in a short and easily readable way but
-sometimes the full information (_e. g. for a repository the full path and not just the repository
-name_) is required. For this use case the plugin writes whatever was selected to the textarea with
-both the visible label and a corresponding extended value. Both values are seperated by a
-semicolon `;`. When multiple options are selected those will be seperated by a linebreak `\n`.
-The content of this textarea is the actual parameter value that is made available to the
-pipline script. It is then up to the pipeline creator to process the information accordingly and
-decide what information is required for the task. 
+When starting a `Build with Parameters` one can see the available search results in a select box. 
+The available options are displayed in a short and easily readable way. Depending on the defined
+`Submit Value` option however different information will get send to the pipeline. 
 
-> Since this may contain information that one does not want to make visible to whoever is starting 
-> a build it is possible to hide the textarea (see display options above).
+The following example shows the parameter selection view and the corresponding pipeline script. Each 
+of the three select boxes has a different `Submit Value` option defined.
 
 ![](img/build_view.png)
+
+Based on the provided pipeline script following is the output of the pipeline script.
+
+![](img/build_console_output.png)
+
+
+> When both label and path information are send to the pipeline both values will be seprated by
+> a semicolon (`;`). When multiple entries are selected each entry is separated by a linebreak 
+> (`\n`).
+
+
+
 
 
 

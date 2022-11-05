@@ -16,9 +16,23 @@ The following artifact repositories were tested during development.
 > When someone has access to other versions of Nexus/Artifactory it would be nice to 
 > get some feedback whether it's working fine with these versions or not.
 
+## Version Warning
+
+Please be aware that version 2.0.0 is not backwards compatible to version 1.x. There is a
+breaking change in the `Display Options` section. All results are now displayed in a select
+box. The option to display the results as a dropdown, radio button or checkbox have been
+removed. If multiple results must be selectable please make sure to check the
+`Multiple Entries Selectable` option.
+
+Furthermore the support for Java 8 was dropped. This plugin now requires a Java 11 or higher.
+
 ## Configuration
 
 Detailed instructions how to configure the plugin can be found in [docs/Config.md][link0].
+
+## Development
+
+To build the plugin please refer to [docs/Build.md][link1].
 
 ## Known Limitations
 
@@ -32,9 +46,6 @@ Another plugin with similar features is
 [Maven Artifact ChoiceListProvider](https://plugins.jenkins.io/maven-artifact-choicelistprovider/).
 For more details please refer to the plugin's overview page.
 
-## Development
-
-To build the plugin please refer to [docs/Build.md][link1].
 
 
 

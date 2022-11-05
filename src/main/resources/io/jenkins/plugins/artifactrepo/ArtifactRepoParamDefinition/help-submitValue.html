@@ -9,6 +9,16 @@
         <li>Label + Path (default) - This will send both the label and the hidden path to the build
             pipeline. Both information are split by a ; (semi-colon).</li>
         <li>Label Only - This will only send the visible label text to the build pipeline.</li>
+        <li>Path Only - This will only send a non-visible path of the artifact/repository to the
+            build pipeline.</li>
     </ul>
 
+    <p>
+        <h3>Example</h3>
+        <pre>
+Label + Path  = commons-lang3-3.12.0.jar;http://localhost:8082/repository/.../commons/commons-lang3/3.12.0/commons-lang3-3.12.0.jar
+Label Only    = commons-lang3-3.12.0.jar
+Path Only     = http://localhost:8082/repository/.../commons/commons-lang3/3.12.0/commons-lang3-3.12.0.jar
+        </pre>
+    </p>
 </div>
