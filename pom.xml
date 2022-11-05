@@ -12,7 +12,7 @@
 
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>artifact-repository-parameter</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>Artifact Repository Parameter Plugin</name>
     <description>Display information from an artifact repository as Jenkins build parameters.</description>
@@ -25,6 +25,7 @@
         <gitOrga>jenkinsci</gitOrga>
         <!-- Jenkins specific properties -->
         <jenkins.version>2.361.2</jenkins.version>
+        <hpi.compatibleSinceVersion>2.0.0</hpi.compatibleSinceVersion>
         <java.level>11</java.level>
         <!-- Palantir code style guide -->
         <palantir.java.format>2.27.0</palantir.java.format>
@@ -32,7 +33,6 @@
 
     <dependencies>
         <!-- 3rd party jenkins plugins this plugin depends on -->
-
         <dependency>
             <groupId>io.jenkins.plugins</groupId>
             <artifactId>commons-lang3-api</artifactId>

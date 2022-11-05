@@ -29,9 +29,10 @@ set.
 
 ## Code Styleguide
 
-This plugin's code follows the [Google style guide for Java][link0] in version 1.15.0. A
-Git pre-push hook gets installed automatically to make sure the code follows this format.
-For IntelliJ IDEA the use of the [google-java-format][link1] plugin is recommended.
+The code is formatted by the [Spotless Maven Plugin][link0] and makes use of the
+[Palantir Java Format][link1] and [sortpom][link2] plugins. The execution is bound to the
+`validate` phase so basically every regular Maven command (except for explicit plugin goals)
+should trigger a code format.
 
 It's also possible to check and apply the formatting rules manually. To check if all 
 files follow the style guide run the following command.
@@ -44,9 +45,7 @@ mvn spotless:check
 mvn spotless:apply
 ```
 
-> The actual content of the hook can be seen in `pom.xml`.
 
-
-
-[link0]: https://google.github.io/styleguide/javaguide.html
-[link1]: https://plugins.jetbrains.com/plugin/8527-google-java-format
+[link0]: https://github.com/diffplug/spotless/tree/main/plugin-maven
+[link1]: https://github.com/palantir/palantir-java-format
+[link2]: https://github.com/Ekryd/sortpom
