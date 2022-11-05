@@ -24,7 +24,7 @@ box. The option to display the results as a dropdown, radio button or checkbox h
 removed. If multiple results must be selectable please make sure to check the
 `Multiple Entries Selectable` option.
 
-Furthermore the support for Java 8 was dropped. This plugin now requires a Java 11 or higher.
+Furthermore the support for Java 8 was dropped. This plugin now requires Java 11 or higher.
 
 ## Configuration
 
