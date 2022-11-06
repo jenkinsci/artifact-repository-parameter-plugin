@@ -12,7 +12,7 @@
 
     <groupId>io.jenkins.plugins</groupId>
     <artifactId>artifact-repository-parameter</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.0.0</version>
     <packaging>hpi</packaging>
     <name>Artifact Repository Parameter Plugin</name>
     <description>Display information from an artifact repository as Jenkins build parameters.</description>
@@ -246,7 +246,7 @@
         <connection>scm:git:git://github.com/${gitOrga}/${project.artifactId}-plugin.git</connection>
         <developerConnection>scm:git:git@github.com:${gitOrga}/${project.artifactId}-plugin.git</developerConnection>
         <url>https://github.com/${gitOrga}/${project.artifactId}-plugin</url>
-        <tag>${scmTag}</tag>
+        <tag>artifact-repository-parameter-2.0.0</tag>
     </scm>
 
     <repositories>
