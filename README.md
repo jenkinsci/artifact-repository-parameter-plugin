@@ -1,19 +1,24 @@
 # Artifact Repository Parameter Plugin
 
+[![Build Status](https://ci.jenkins.io/job/Plugins/job/artifact-repository-parameter-plugin/job/master/badge/icon)](https://ci.jenkins.io/blue/organizations/jenkins/Plugins%2Fartifact-repository-parameter-plugin/activity)
+[![Open Issues](https://img.shields.io/github/issues-raw/jenkinsci/artifact-repository-parameter-plugin)](https://github.com/jenkinsci/artifact-repository-parameter-plugin/issues)
+[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/artifact-repository-parameter.svg?label=latest%20version)](https://plugins.jenkins.io/artifact-repository-parameter)
+[![Contributors](https://img.shields.io/github/contributors/jenkinsci/artifact-repository-parameter-plugin.svg)](https://github.com/jenkinsci/artifact-repository-parameter-plugin/graphs/contributors)
+
 The goal of the plugin is to make certain information of an artifact repository available as
-[Jenkins][link2] build parameter. Currently the following endpoints are supported.
+[Jenkins](https://www.jenkins.io/) build parameter. Currently the following endpoints are supported.
 
 * __Path__ - Display all deployed artifacts by its path.
 * __Version__ - Display all available versions of an artifact.
 * __Repositories__ - A list of all available repositories.
 
-The following artifact repositories were tested during development.
+The following artifact repositories have been tested during development.
 
 * __Sonatype Nexus 3 OSS - 3.42.0-01__
 * __JFrog Artifactory Cloud__
 * __JFrog Artifactory 7 OSS - 7.41.13__
 
-> When someone has access to other versions of Nexus/Artifactory it would be nice to 
+> When someone has access to other versions of Nexus/Artifactory it would be nice to
 > get some feedback whether it's working fine with these versions or not.
 
 ## Version Warning
@@ -26,29 +31,18 @@ removed. If multiple results must be selectable please make sure to check the
 
 Furthermore the support for Java 8 was dropped. This plugin now requires Java 11 or higher.
 
+Last but not least the plugin is based on Jenkins LTS version 2.361.2 or higher.
+
 ## Configuration
 
-Detailed instructions how to configure the plugin can be found in [docs/Config.md][link0].
+Detailed instructions how to configure the plugin can be found in [CONFIG.md](CONFIG.md).
 
-## Development
+## Contributing
 
-To build the plugin please refer to [docs/Build.md][link1].
+If you want to contribute to this project please have a look at [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Known Limitations
 
 ### Blue Ocean
 
 The current version of this plugin does not work with Blue Ocean UI.
-
-## Similar plugins
-
-Another plugin with similar features is
-[Maven Artifact ChoiceListProvider](https://plugins.jenkins.io/maven-artifact-choicelistprovider/).
-For more details please refer to the plugin's overview page.
-
-
-
-
-[link0]: ./docs/Config.md
-[link1]: ./docs/Build.md
-[link2]: https://www.jenkins.io/
