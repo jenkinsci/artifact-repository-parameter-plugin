@@ -2,7 +2,7 @@
 
 Following is an overview how to configure and use the plugin.
 
-## Add plugin as build parameter
+## Add Plugin To Build
 
 As a first step the plugin must be added as a parameter to the build. This can easily be done
 in the configuration view. Make sure the checkbox `This project is parameterized` is checked
