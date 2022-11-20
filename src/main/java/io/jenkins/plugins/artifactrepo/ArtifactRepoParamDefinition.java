@@ -21,7 +21,6 @@ import lombok.Getter;
 import lombok.extern.java.Log;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -56,7 +55,6 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
     private final String selectRegexStyle;
     private final String submitValue;
     private boolean exceptionThrown = false;
-    private transient Map<String, ResultEntry> result;
 
     /** Constructor is used during connection validation test. */
     ArtifactRepoParamDefinition(
@@ -147,10 +145,6 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
 
     /** Request data from the target instance to display as build parameter. */
     public Map<String, ResultEntry> getResult() {
-        if (MapUtils.isNotEmpty(result)) {
-            return result;
-        }
-
         exceptionThrown = false;
         List<ResultEntry> repoEntries;
         try {
@@ -168,8 +162,7 @@ public class ArtifactRepoParamDefinition extends ParameterDefinition {
                 .sorted(this::sortResult)
                 .limit(resultsCount)
                 .forEach(entry -> resultEntries.put(entry.getKey(), entry));
-        result = markPreselectedEntries(resultEntries);
-        return result;
+        return markPreselectedEntries(resultEntries);
     }
 
     /**
