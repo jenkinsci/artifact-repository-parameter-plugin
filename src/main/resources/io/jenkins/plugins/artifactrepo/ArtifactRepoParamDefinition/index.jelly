@@ -2,6 +2,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:st="jelly:stapler">
 
     <j:set var="escapeEntryTitleAndDescription" value="true"/>
+    <j:set var="arpResult" value="${it.result}"/>
 
     <f:entry title="${it.name}" description="${it.description}">
         <div name="parameter">
@@ -9,7 +10,7 @@
                 <j:when test="${it.exceptionThrown}">
                     <div class="error">${%exceptionMsg}</div>
                 </j:when>
-                <j:when test="${it.result.size() == 0}">
+                <j:when test="${arpResult.size() == 0}">
                     <div class="warning">${%zeroResultsMsg}</div>
                 </j:when>
                 <j:otherwise>

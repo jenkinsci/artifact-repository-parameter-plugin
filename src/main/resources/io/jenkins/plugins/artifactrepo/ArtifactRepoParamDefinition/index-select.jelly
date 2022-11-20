@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler">
 
-    <j:forEach items="${it.result}" var="item" varStatus="loop">
+    <j:forEach items="${arpResult}" var="item" varStatus="loop">
         <j:choose>
             <j:when test="${item.value.selected == true}">
                 <option value="${item.value.submitValue}" selected="selected">
