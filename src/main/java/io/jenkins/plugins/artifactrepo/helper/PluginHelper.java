@@ -2,6 +2,7 @@ package io.jenkins.plugins.artifactrepo.helper;
 
 import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
 import hudson.ProxyConfiguration;
+import hudson.security.ACL;
 import io.jenkins.plugins.artifactrepo.model.ArtifactRepoParamProxy;
 import io.jenkins.plugins.artifactrepo.model.HttpResponse;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -23,6 +25,7 @@ import javax.net.ssl.SSLContext;
 import jenkins.model.Jenkins;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.java.Log;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -47,6 +50,7 @@ import org.apache.http.ssl.SSLContextBuilder;
  * A simple utility class to help create the HTTP connection from the plugin to the target
  * repository instances.
  */
+@Log
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PluginHelper {
 
@@ -113,12 +117,18 @@ public class PluginHelper {
     public static StandardUsernamePasswordCredentials getCredentials(@Nonnull String credId) {
         Validate.notBlank(credId, "The credentials ID must not be blank");
 
-        return com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
-                        StandardUsernamePasswordCredentials.class, Jenkins.get(), null, Collections.emptyList())
+        StandardUsernamePasswordCredentials result = com.cloudbees.plugins.credentials.CredentialsProvider.lookupCredentials(
+                        StandardUsernamePasswordCredentials.class, Jenkins.get(), ACL.SYSTEM, Collections.emptyList())
                 .stream()
                 .filter(cred -> StringUtils.equals(cred.getId(), credId))
                 .findFirst()
                 .orElse(null);
+
+        if (result == null) {
+            log.log(Level.SEVERE, "Cannot find a credential for ID " + credId);
+        }
+
+        return result;
     }
 
     /** Takes a URL string and creates a {@link HttpHost} object of it. */
